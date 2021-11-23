@@ -14,6 +14,7 @@ namespace MudBlazor
         public Rendermode Mode { get; set; }
 
         [Parameter] public bool Visible { get; set; } = true;
+        
         [Parameter] public string HeaderText { get; set; }
 
         protected bool IsDefault<T>(T value)

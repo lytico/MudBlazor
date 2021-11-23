@@ -35,7 +35,7 @@ namespace MudBlazor
            .AddClass("mud-table-square", Square)
            .AddClass("mud-table-sticky-header", FixedHeader)
            .AddClass("mud-table-sticky-footer", FixedFooter)
-           .AddClass($"mud-elevation-{Elevation}", !Outlined)
+           .AddClass($"mud-elevation-{Elevation}", !Outlined && Elevation>0)
           .AddClass(Class)
         .Build();
 
@@ -99,6 +99,8 @@ namespace MudBlazor
         /// attribute 'height' accepts, i.e. 500px. 
         /// </summary>
         [Parameter] public string Height { get; set; }
+        
+        [Parameter] public string Width { get; set; }
 
         /// <summary>
         /// If table is in smalldevice mode and uses any kind of sorting the text applied here will be the sort selects label.
@@ -402,6 +404,7 @@ namespace MudBlazor
         protected string TableStyle
             => new StyleBuilder()
                 .AddStyle($"height", Height, !string.IsNullOrWhiteSpace(Height))
+                .AddStyle($"width", Width, !string.IsNullOrWhiteSpace(Width))
                 .Build();
 
         internal abstract bool HasServerData { get; }

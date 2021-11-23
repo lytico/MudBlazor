@@ -6,14 +6,17 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using MudBlazor.Utilities;
 
 namespace MudBlazor
 {
+
     /// <summary>
     /// Binds an object's property to a column by its property name 
     /// </summary>
     public partial class MudMemberColumn<T, M> : MudBaseColumn
     {
+
         M Value
         {
             get => GetValue(Item);
@@ -27,7 +30,8 @@ namespace MudBlazor
             }
         }
 
-        [Parameter] public EventCallback<M> ValueChanged { get; set; }
+        [Parameter]
+        public EventCallback<M> ValueChanged { get; set; }
 
         [Parameter]
         public M FooterValue
@@ -43,18 +47,20 @@ namespace MudBlazor
         private M _footerValue;
         private bool _footerValueAvailable = false;
 
-
         /// <summary>
         /// Used if no FooterValue is available
         /// </summary>
-        [Parameter] public string FooterText { get; set; }
+        [Parameter]
+        public string FooterText { get; set; }
 
         /// <summary>
         /// Specifies which string format should be used.
         /// </summary>
-        [Parameter] public string DataFormatString { get; set; }
+        [Parameter]
+        public string DataFormatString { get; set; }
 
-        [Parameter] public bool ReadOnly { get; set; }
+        [Parameter]
+        public bool ReadOnly { get; set; }
 
         private string GetFormattedString(M item)
         {
@@ -79,6 +85,21 @@ namespace MudBlazor
         [Parameter]
         public Expression<Func<T, M>> Member { get; set; }
 
+        [Parameter]
+        public string Width { get; set; }
+        
+        [Parameter]
+        public string ColumnStyle { get; set; }
+        
+        [Parameter]
+        public Func<T, Rendermode, string> ColumnStyleFunc { get; set; }
+        protected string Style
+            => new StyleBuilder()
+               .AddStyle(ColumnStyle)
+               .AddStyle(ColumnStyleFunc?.Invoke(Item, Mode))
+               .AddStyle($"width", Width, !string.IsNullOrWhiteSpace(Width))
+               .Build();
+        
         private Func<T, M> _getter;
 
         public M GetValue(T item)
@@ -106,10 +127,12 @@ namespace MudBlazor
 
             return base.OnParametersSetAsync();
         }
+
     }
 
     public static class MemberColumnExtensions
     {
+
         public static string GetDisplayName<T, M>(this Expression<Func<T, M>> e)
         {
             if (e == null) return null;
@@ -117,8 +140,8 @@ namespace MudBlazor
             if (e.MemberInfo() is PropertyInfo p)
             {
                 if (p
-                    .GetCustomAttributes(typeof(DisplayAttribute), false)
-                    .FirstOrDefault() is DisplayAttribute displayAttribute)
+                   .GetCustomAttributes(typeof(DisplayAttribute), false)
+                   .FirstOrDefault() is DisplayAttribute displayAttribute)
                 {
                     return displayAttribute.Name ?? p.Name;
                 }
@@ -133,7 +156,10 @@ namespace MudBlazor
         {
             if (exp.Body is MemberExpression member) return member.Member;
             if (exp.Body is MethodCallExpression method) return method.Method;
+
             throw new ArgumentException($"{exp.ToString()} is not a MemberExpression");
         }
+
     }
+
 }
