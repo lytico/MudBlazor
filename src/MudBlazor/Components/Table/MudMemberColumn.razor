@@ -1,34 +1,34 @@
 ﻿@namespace MudBlazor
 @typeparam T
 @typeparam M
+@using MudBlazor.Utilities
 @inherits MudBaseColumn
 
-@if (Visible)
-{
-    @if (Mode == Rendermode.Header)
-    {
-        <MudTh>@HeaderText</MudTh>
-    }
-    else if (Mode == Rendermode.Item || (ReadOnly && Mode == Rendermode.Edit))
-    {
-        <MudTd DataLabel="@HeaderText">@GetFormattedString(Value)</MudTd>
-    }
-    else if (Mode == Rendermode.Edit)
-    {
-        <MudTd DataLabel="@HeaderText"><MudTextField @bind-Value="Value" /></MudTd>
-    }
-    else if (Mode == Rendermode.Footer)
-    {
-        @if (_footerValueAvailable)
-        {
-            <MudTd>
+@if (Visible) {
+    
+    @if (Mode == Rendermode.Header) {
+        
+        <MudTh Style="@Style">@HeaderText</MudTh>
+        
+    } else if (Mode == Rendermode.Item || (ReadOnly && Mode == Rendermode.Edit)) {
+        
+        <MudTd DataLabel="@HeaderText" Style="@Style">@GetFormattedString(Value)</MudTd>
+        
+    } else if (Mode == Rendermode.Edit) {
+        
+        <MudTd DataLabel="@HeaderText" Style="@Style">
+            <MudTextField @bind-Value="Value"/>
+        </MudTd>
+        
+    } else if (Mode == Rendermode.Footer) {
+        
+        @if (_footerValueAvailable) {
+            <MudTd Style="@Style">
                 @GetFormattedString(FooterValue)
             </MudTd>
-        }
-        else
-        {
-            <MudTd>
-                 @FooterText
+        } else {
+            <MudTd Style="@Style">
+                @FooterText
             </MudTd>
         }
     }

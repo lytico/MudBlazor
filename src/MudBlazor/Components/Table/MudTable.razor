@@ -148,8 +148,10 @@
                 {
                     <tfoot class="@FootClassname">
                         @if (CustomFooter)
-                        {
-                            @FooterContent
+                        {     
+                            @if (@FooterContent != null) {
+                                @FooterContent
+                            }
                         }
                         else
                         {
