@@ -488,10 +488,13 @@ namespace MudBlazor
             };
 
             _server_data = await ServerData(state);
+            
+            CurrentPage = state.Page;
 
             if (CurrentPage * RowsPerPage > _server_data.TotalItems)
                 CurrentPage = 0;
 
+            
             Loading = false;
             StateHasChanged();
             Context?.PagerStateHasChanged?.Invoke();
