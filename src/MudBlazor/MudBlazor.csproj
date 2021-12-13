@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -53,8 +53,8 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="6.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0" />
   </ItemGroup>
 
 <!--  <Target Name="ToolRestore">-->
@@ -74,9 +74,9 @@
 
   <Target Name="WebCompiler" DependsOnTargets="CombineJS">
     <!--compile and minify scss-->
-    <Exec Command="dotnet webcompiler ./Styles/MudBlazor.scss -c excubowebcompiler.json" StandardOutputImportance="high" StandardErrorImportance="high" />
+    <Exec Command="webcompiler ./Styles/MudBlazor.scss -c excubowebcompiler.json" StandardOutputImportance="high" StandardErrorImportance="high" />
     <!--minify js-->
-    <Exec Command="dotnet webcompiler ./TScripts/combined/MudBlazor.js -c excubowebcompiler.json" StandardOutputImportance="high" StandardErrorImportance="high" />
+    <Exec Command="webcompiler ./TScripts/combined/MudBlazor.js -c excubowebcompiler.json" StandardOutputImportance="high" StandardErrorImportance="high" />
   </Target>
 
   <Target Name="IncludeGeneratedStaticFiles" DependsOnTargets="WebCompiler">
