@@ -111,6 +111,11 @@
     & .mud-checkbox {
         margin: -12px;
     }
+
+    &.mud-table-cell-gutters {
+      padding-left: 0px;
+      padding-right: 0px;
+    }
 }
 
 .mud-table-cell-footer {
@@ -134,6 +139,11 @@
 
             .mud-table-row-expander {
                 padding: 4px;
+            }
+
+            &.mud-table-cell-gutters {
+              padding-left: 0px;
+              padding-right: 0px;
             }
         }
 
