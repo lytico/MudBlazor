@@ -83,7 +83,17 @@
         &:hover {
             cursor: pointer;
         }
-
+      
+        &.mud-expand-panel-gutters {
+          padding-left: 0px;
+          padding-right: 0px;
+        }
+  
+        &.mud-expand-panel-dense {
+          padding-top: 0px;
+          padding-bottom: 0px;
+        }
+      
         & .mud-expand-panel-text {
             flex: 1 1 auto;
         }
