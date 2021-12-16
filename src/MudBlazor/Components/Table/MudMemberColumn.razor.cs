@@ -89,16 +89,24 @@ namespace MudBlazor
         public string Width { get; set; }
         
         [Parameter]
-        public string ColumnStyle { get; set; }
+        public string Style { get; set; }
         
         [Parameter]
         public Func<T, Rendermode, string> ColumnStyleFunc { get; set; }
-        protected string Style
+        
+        protected string Stylevalues
             => new StyleBuilder()
-               .AddStyle(ColumnStyle)
+               .AddStyle(Style)
                .AddStyle(ColumnStyleFunc?.Invoke(Item, Mode))
                .AddStyle($"width", Width, !string.IsNullOrWhiteSpace(Width))
                .Build();
+       
+        /// <summary>
+        /// If true, the left and right padding is removed from childcontent.
+        /// </summary>
+        [Parameter]
+        [Category(CategoryTypes.Table.Appearance)]
+        public bool DisableGutters { get; set; }
         
         private Func<T, M> _getter;
 

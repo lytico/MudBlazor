@@ -8,26 +8,26 @@
     
     @if (Mode == Rendermode.Header) {
         
-        <MudTh Style="@Style">@HeaderText</MudTh>
+        <MudTh Style="@Stylevalues" DisableGutters="@DisableGutters">@HeaderText</MudTh>
         
     } else if (Mode == Rendermode.Item || (ReadOnly && Mode == Rendermode.Edit)) {
         
-        <MudTd DataLabel="@HeaderText" Style="@Style">@GetFormattedString(Value)</MudTd>
+        <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGutters">@GetFormattedString(Value)</MudTd>
         
     } else if (Mode == Rendermode.Edit) {
         
-        <MudTd DataLabel="@HeaderText" Style="@Style">
+        <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGutters">
             <MudTextField @bind-Value="Value"/>
         </MudTd>
         
     } else if (Mode == Rendermode.Footer) {
         
         @if (_footerValueAvailable) {
-            <MudTd Style="@Style">
+            <MudTd Style="@Stylevalues" DisableGutters="@DisableGutters">
                 @GetFormattedString(FooterValue)
             </MudTd>
         } else {
-            <MudTd Style="@Style">
+            <MudTd Style="@Stylevalues" DisableGutters="@DisableGutters">
                 @FooterText
             </MudTd>
         }
