@@ -87,27 +87,27 @@ namespace MudBlazor
 
         [Parameter]
         public string Width { get; set; }
-        
+
         [Parameter]
         public string Style { get; set; }
-        
+
         [Parameter]
         public Func<T, Rendermode, string> ColumnStyleFunc { get; set; }
-        
+
         protected string Stylevalues
             => new StyleBuilder()
                .AddStyle(Style)
                .AddStyle(ColumnStyleFunc?.Invoke(Item, Mode))
                .AddStyle($"width", Width, !string.IsNullOrWhiteSpace(Width))
                .Build();
-       
+
         /// <summary>
         /// If true, the left and right padding is removed from childcontent.
         /// </summary>
         [Parameter]
         [Category(CategoryTypes.Table.Appearance)]
         public bool DisableGutters { get; set; }
-        
+
         private Func<T, M> _getter;
 
         public M GetValue(T item)
@@ -127,7 +127,34 @@ namespace MudBlazor
             return default;
         }
 
-        public void SetValue(T item, M value) { }
+        /// <summary>
+        /// Save compiled _getter property to avoid repeated Compile() calls
+        /// </summary>
+        protected Action<T, M> _setter;
+
+        protected bool? _hasSetter;
+        protected Expression<Action<T, M>> _setterExpression;
+
+        public void SetValue(T item, M value)
+        {
+            if (item == null || Member == null) return;
+
+            if (_hasSetter.HasValue && !_hasSetter.Value)
+                return;
+
+            _setterExpression ??= Member.GetPropertySetter();
+
+            if (_setterExpression == null)
+            {
+                _hasSetter = false;
+
+                return;
+            }
+
+            _setter ??= _setterExpression?.Compile();
+            _setter?.Invoke(item, value);
+
+        }
 
         protected override Task OnParametersSetAsync()
         {
@@ -148,8 +175,8 @@ namespace MudBlazor
             if (e.MemberInfo() is PropertyInfo p)
             {
                 if (p
-                   .GetCustomAttributes(typeof(DisplayAttribute), false)
-                   .FirstOrDefault() is DisplayAttribute displayAttribute)
+                       .GetCustomAttributes(typeof(DisplayAttribute), false)
+                       .FirstOrDefault() is DisplayAttribute displayAttribute)
                 {
                     return displayAttribute.Name ?? p.Name;
                 }
@@ -166,6 +193,21 @@ namespace MudBlazor
             if (exp.Body is MethodCallExpression method) return method.Method;
 
             throw new ArgumentException($"{exp.ToString()} is not a MemberExpression");
+        }
+
+        public static Expression<Action<E, M>> GetPropertySetter<E, M>(this Expression<Func<E, M>> member)
+        {
+            if (member.Body is not MemberExpression memberExpr || memberExpr.Member.MemberType != MemberTypes.Property)
+            {
+                return null;
+            }
+
+            var it = Expression.Parameter(typeof(E), $"it");
+            var value = Expression.Parameter(typeof(M), "value");
+
+            return Expression.Lambda<Action<E, M>>(
+                Expression.Assign(Expression.MakeMemberAccess(it, memberExpr.Member), value),
+                it, value);
         }
 
     }
