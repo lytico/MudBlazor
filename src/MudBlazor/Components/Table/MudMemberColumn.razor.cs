@@ -94,9 +94,18 @@ namespace MudBlazor
         [Parameter]
         public Func<T, Rendermode, string> ColumnStyleFunc { get; set; }
 
+        [Parameter]
+        public bool MiniHeader { get; set; }
+
+        public Func<T, Rendermode, string> MiniHeaderFunc =
+            (e, rendermode) => rendermode == MudBaseColumn.Rendermode.Header ?
+                "scale(0.75); transform-origin: bottom left;" :
+                string.Empty;
+
         protected string Stylevalues
             => new StyleBuilder()
                .AddStyle(Style)
+               .AddStyle("transform", MiniHeaderFunc?.Invoke(Item, Mode), MiniHeader)
                .AddStyle(ColumnStyleFunc?.Invoke(Item, Mode))
                .AddStyle($"width", Width, !string.IsNullOrWhiteSpace(Width))
                .Build();
@@ -110,7 +119,7 @@ namespace MudBlazor
 
         [Parameter]
         public RenderFragment<T> EditTemplate { get; set; }
-        
+
         private Func<T, M> _getter;
 
         public M GetValue(T item)
