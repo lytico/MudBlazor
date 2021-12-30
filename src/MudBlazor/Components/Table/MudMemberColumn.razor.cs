@@ -108,6 +108,9 @@ namespace MudBlazor
         [Category(CategoryTypes.Table.Appearance)]
         public bool DisableGutters { get; set; }
 
+        [Parameter]
+        public RenderFragment<T> EditTemplate { get; set; }
+        
         private Func<T, M> _getter;
 
         public M GetValue(T item)
