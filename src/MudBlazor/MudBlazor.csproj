@@ -57,9 +57,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.0" />
   </ItemGroup>
 
-<!--  <Target Name="ToolRestore">-->
-<!--    <Exec Command="dotnet tool restore" StandardOutputImportance="high" />-->
-<!--  </Target>-->
+  <Target Name="ToolRestore">
+    <Exec Command="dotnet tool restore" StandardOutputImportance="high" />
+  </Target>
 
   <!--combine js files-->
   <Target Name="CombineJS">
@@ -72,7 +72,7 @@
     <WriteLinesToFile File="./TScripts/combined/MudBlazor.js" Lines="@(jsLines)" Overwrite="true" />
   </Target>
 
-  <Target Name="WebCompiler" DependsOnTargets="CombineJS">
+  <Target Name="WebCompiler" DependsOnTargets="ToolRestore;CombineJS">
     <!--compile and minify scss-->
     <Exec Command="dotnet webcompiler ./Styles/MudBlazor.scss -c excubowebcompiler.json" StandardOutputImportance="high" StandardErrorImportance="high" />
     <!--minify js-->
