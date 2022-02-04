@@ -12,7 +12,7 @@
 
     } else if (Mode == Rendermode.Item || (ReadOnly && Mode == Rendermode.Edit)) {
 
-        <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGutters">@GetFormattedString(Value)</MudTd>
+        <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGutters">@GetFormattedString(Value)@ChildContent</MudTd>
 
     } else if (Mode == Rendermode.Edit) {
         

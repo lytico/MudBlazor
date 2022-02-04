@@ -120,6 +120,9 @@ namespace MudBlazor
         [Parameter]
         public RenderFragment<T> EditTemplate { get; set; }
 
+        [Parameter]
+        public RenderFragment ChildContent { get; set; }
+        
         private Func<T, M> _getter;
 
         public M GetValue(T item)
