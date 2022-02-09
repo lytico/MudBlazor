@@ -5,29 +5,23 @@
 @inherits MudBaseColumn
 
 @if (Visible) {
-
     @if (Mode == Rendermode.Header) {
-
-        <MudTh Style="@Stylevalues" DisableGutters="@DisableGutters">@HeaderText</MudTh>
-
+        <MudTh Style="@Stylevalues" DisableGutters="@DisableGutters">
+            <span style="@MiniHeaderTextSpanStyle">@HeaderText</span>
+        </MudTh>
     } else if (Mode == Rendermode.Item || (ReadOnly && Mode == Rendermode.Edit)) {
-
         <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGutters">@GetFormattedString(Value)@ChildContent</MudTd>
-
     } else if (Mode == Rendermode.Edit) {
-        
         <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGutters">
-            
+
             @if (EditTemplate != null) {
                 @EditTemplate(Item)
             } else {
                 <MudTextField @bind-Value="Value"/>
             }
-            
+
         </MudTd>
-
     } else if (Mode == Rendermode.Footer) {
-
         @if (_footerValueAvailable) {
             <MudTd Style="@Stylevalues" DisableGutters="@DisableGutters">
                 @GetFormattedString(FooterValue)

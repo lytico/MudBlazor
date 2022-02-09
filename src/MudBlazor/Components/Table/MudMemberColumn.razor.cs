@@ -96,16 +96,15 @@ namespace MudBlazor
 
         [Parameter]
         public bool MiniHeader { get; set; }
-
-        public Func<T, Rendermode, string> MiniHeaderFunc =
-            (e, rendermode) => rendermode == MudBaseColumn.Rendermode.Header ?
-                "scale(0.75); transform-origin: bottom left;" :
-                string.Empty;
+        
+        protected const string MiniHeaderTransform = "scale(0.75); transform-origin: bottom left";
+        
+        protected string MiniHeaderTextSpanStyle => MiniHeader ? $"transform: {MiniHeaderTransform}; display: inline-block; line-height: 1.1rem; font-weight: 400;" : default;
 
         protected string Stylevalues
             => new StyleBuilder()
+               .AddStyle("padding-bottom","0",MiniHeader)
                .AddStyle(Style)
-               .AddStyle("transform", MiniHeaderFunc?.Invoke(Item, Mode), MiniHeader)
                .AddStyle(ColumnStyleFunc?.Invoke(Item, Mode))
                .AddStyle($"width", Width, !string.IsNullOrWhiteSpace(Width))
                .Build();
