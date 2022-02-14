@@ -96,14 +96,23 @@ namespace MudBlazor
 
         [Parameter]
         public bool MiniHeader { get; set; }
-        
-        protected const string MiniHeaderTransform = "scale(0.75); transform-origin: bottom left";
-        
-        protected string MiniHeaderTextSpanStyle => MiniHeader ? $"transform: {MiniHeaderTransform}; display: inline-block; line-height: 1.1rem; font-weight: 400;" : default;
+
+        [CascadingParameter(Name = "MiniHeaderCascading")]
+        [Category(CategoryTypes.Table.Appearance)]
+        public bool? MiniHeaderCascading { get; set; }
+
+        private bool MiniHeaderValue => MiniHeaderCascading ?? MiniHeader;
+
+        protected string MiniHeaderTransformOrigin
+            => Style?.Contains("text-align:right") ?? false ? "right" : Style?.Contains("text-align:center") ?? false ? "center" : "left";
+
+        protected string MiniHeaderTransform => $"scale(0.75); transform-origin: bottom {MiniHeaderTransformOrigin}";
+
+        protected string MiniHeaderTextSpanStyle => MiniHeaderValue ? $"transform: {MiniHeaderTransform}; display: inline-block; line-height: 1.1rem; font-weight: 400;" : default;
 
         protected string Stylevalues
             => new StyleBuilder()
-               .AddStyle("padding-bottom","0",MiniHeader)
+               .AddStyle("padding-bottom", "0", MiniHeaderValue)
                .AddStyle(Style)
                .AddStyle(ColumnStyleFunc?.Invoke(Item, Mode))
                .AddStyle($"width", Width, !string.IsNullOrWhiteSpace(Width))
@@ -116,12 +125,18 @@ namespace MudBlazor
         [Category(CategoryTypes.Table.Appearance)]
         public bool DisableGutters { get; set; }
 
+        [CascadingParameter(Name = "DisableGuttersCascading")]
+        [Category(CategoryTypes.Table.Appearance)]
+        public bool? DisableGuttersCascading { get; set; }
+
+        private bool DisableGuttersValue => DisableGuttersCascading ?? DisableGutters;
+
         [Parameter]
         public RenderFragment<T> EditTemplate { get; set; }
 
         [Parameter]
         public RenderFragment ChildContent { get; set; }
-        
+
         private Func<T, M> _getter;
 
         public M GetValue(T item)

@@ -6,13 +6,13 @@
 
 @if (Visible) {
     @if (Mode == Rendermode.Header) {
-        <MudTh Style="@Stylevalues" DisableGutters="@DisableGutters">
+        <MudTh Style="@Stylevalues" DisableGutters="@DisableGuttersValue">
             <span style="@MiniHeaderTextSpanStyle">@HeaderText</span>
         </MudTh>
     } else if (Mode == Rendermode.Item || (ReadOnly && Mode == Rendermode.Edit)) {
-        <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGutters">@GetFormattedString(Value)@ChildContent</MudTd>
+        <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGuttersValue">@GetFormattedString(Value)@ChildContent</MudTd>
     } else if (Mode == Rendermode.Edit) {
-        <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGutters">
+        <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGuttersValue">
 
             @if (EditTemplate != null) {
                 @EditTemplate(Item)
@@ -23,11 +23,11 @@
         </MudTd>
     } else if (Mode == Rendermode.Footer) {
         @if (_footerValueAvailable) {
-            <MudTd Style="@Stylevalues" DisableGutters="@DisableGutters">
+            <MudTd Style="@Stylevalues" DisableGutters="@DisableGuttersValue">
                 @GetFormattedString(FooterValue)
             </MudTd>
         } else {
-            <MudTd Style="@Stylevalues" DisableGutters="@DisableGutters">
+            <MudTd Style="@Stylevalues" DisableGutters="@DisableGuttersValue">
                 @FooterText
             </MudTd>
         }
