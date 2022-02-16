@@ -74,6 +74,13 @@ namespace MudBlazor
             }
         }
 
+        /// <summary>
+        /// Type of the input element. It should be a valid HTML5 input type.
+        /// </summary>
+        [Parameter]
+        [Category(CategoryTypes.FormComponent.Behavior)]
+        public InputType InputType { get; set; } = InputType.Text;
+
         [Parameter]
         public T Item { get; set; }
 
@@ -112,11 +119,11 @@ namespace MudBlazor
 
         protected string Stylevalues
             => new StyleBuilder()
-               .AddStyle("padding-bottom", "0", MiniHeaderValue)
-               .AddStyle(Style)
-               .AddStyle(ColumnStyleFunc?.Invoke(Item, Mode))
-               .AddStyle($"width", Width, !string.IsNullOrWhiteSpace(Width))
-               .Build();
+                .AddStyle("padding-bottom", "0", MiniHeaderValue)
+                .AddStyle(Style)
+                .AddStyle(ColumnStyleFunc?.Invoke(Item, Mode))
+                .AddStyle($"width", Width, !string.IsNullOrWhiteSpace(Width))
+                .Build();
 
         /// <summary>
         /// If true, the left and right padding is removed from childcontent.
@@ -204,8 +211,8 @@ namespace MudBlazor
             if (e.MemberInfo() is PropertyInfo p)
             {
                 if (p
-                       .GetCustomAttributes(typeof(DisplayAttribute), false)
-                       .FirstOrDefault() is DisplayAttribute displayAttribute)
+                        .GetCustomAttributes(typeof(DisplayAttribute), false)
+                        .FirstOrDefault() is DisplayAttribute displayAttribute)
                 {
                     return displayAttribute.Name ?? p.Name;
                 }

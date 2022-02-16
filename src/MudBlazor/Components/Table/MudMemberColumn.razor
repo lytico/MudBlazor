@@ -17,7 +17,7 @@
             @if (EditTemplate != null) {
                 @EditTemplate(Item)
             } else {
-                <MudTextField @bind-Value="Value"/>
+                <MudTextField @bind-Value="Value" InputType="@InputType"/>
             }
 
         </MudTd>
