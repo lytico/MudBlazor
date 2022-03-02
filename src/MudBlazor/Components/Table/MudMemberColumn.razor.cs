@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor.Utilities;
 
 namespace MudBlazor
@@ -92,6 +93,8 @@ namespace MudBlazor
         [Parameter]
         public Expression<Func<T, M>> Member { get; set; }
 
+        protected Expression<Func<M>> MemberFor => Member.MemberFor(Item);
+
         [Parameter]
         public string Width { get; set; }
 
@@ -154,6 +157,9 @@ namespace MudBlazor
         [Category(CategoryTypes.FormComponent.Validation)]
         public virtual object Validation { get; set; }
 
+        [CascadingParameter]
+        EditContext EditContext { get; set; } = default!;
+
         [Parameter]
         public RenderFragment<T> EditTemplate { get; set; }
 
@@ -215,6 +221,8 @@ namespace MudBlazor
         {
             HeaderText ??= Member.GetDisplayName();
 
+            EditContext ??= new EditContext(Item);
+
             return base.OnParametersSetAsync();
         }
 
@@ -263,6 +271,20 @@ namespace MudBlazor
             return Expression.Lambda<Action<E, M>>(
                 Expression.Assign(Expression.MakeMemberAccess(it, memberExpr.Member), value),
                 it, value);
+        }
+
+        public static Expression<Func<M>> MemberFor<E, M>(this Expression<Func<E, M>> member, E item)
+        {
+            if (member.Body is not MemberExpression memberExpr || memberExpr.Member.MemberType != MemberTypes.Property)
+            {
+                return null;
+            }
+
+            var it = Expression.Constant(item, typeof(E));
+            var value = Expression.Parameter(typeof(M), "value");
+
+            return Expression.Lambda<Func<M>>(
+                Expression.MakeMemberAccess(it, memberExpr.Member));
         }
 
     }

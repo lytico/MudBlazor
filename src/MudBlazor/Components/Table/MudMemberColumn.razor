@@ -18,15 +18,17 @@
             <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGuttersValue">@GetFormattedString(Value)@ChildContent</MudTd>
         }
     } else if (Mode == Rendermode.Edit) {
-        <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGuttersValue">
+        <CascadingValue Value="@EditContext">
+            <MudTd DataLabel="@HeaderText" Style="@Stylevalues" DisableGutters="@DisableGuttersValue">
 
-            @if (EditTemplate != null) {
-                @EditTemplate(Item)
-            } else {
-                <MudTextField @bind-Value="Value" InputType="@InputType" Validation="@Validation"/>
-            }
+                @if (EditTemplate != null) {
+                    @EditTemplate(Item)
+                } else {
+                    <MudTextField @bind-Value="Value" InputType="@InputType" Validation="@Validation" For="@MemberFor"/>
+                }
 
-        </MudTd>
+            </MudTd>
+        </CascadingValue>
     } else if (Mode == Rendermode.Footer) {
         @if (_footerValueAvailable) {
             <MudTd Style="@Stylevalues" DisableGutters="@DisableGuttersValue">
