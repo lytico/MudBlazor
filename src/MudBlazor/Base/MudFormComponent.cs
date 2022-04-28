@@ -244,7 +244,11 @@ namespace MudBlazor
                     errors.Add(ConversionErrorMessage);
                 // validation errors
                 if (Validation is ValidationAttribute)
-                    ValidateWithAttribute(Validation as ValidationAttribute, _value, errors);
+                {
+                    // avoid running ValidateWithAttribute twice, see some lines later:
+                    if(_validationAttrsFor == null)
+                        ValidateWithAttribute(Validation as ValidationAttribute, _value, errors);
+                }
                 else if (Validation is Func<T, bool>)
                     ValidateWithFunc(Validation as Func<T, bool>, _value, errors);
                 else if (Validation is Func<T, string>)
