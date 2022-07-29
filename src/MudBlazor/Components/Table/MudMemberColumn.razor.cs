@@ -260,7 +260,7 @@ namespace MudBlazor
 
         public static Expression<Action<E, M>> GetPropertySetter<E, M>(this Expression<Func<E, M>> member)
         {
-            if (member.Body is not MemberExpression memberExpr || memberExpr.Member.MemberType != MemberTypes.Property)
+            if (member.Body is not MemberExpression { Member: PropertyInfo { CanWrite: true } property })
             {
                 return null;
             }
@@ -269,7 +269,7 @@ namespace MudBlazor
             var value = Expression.Parameter(typeof(M), "value");
 
             return Expression.Lambda<Action<E, M>>(
-                Expression.Assign(Expression.MakeMemberAccess(it, memberExpr.Member), value),
+                Expression.Assign(Expression.MakeMemberAccess(it, property), value),
                 it, value);
         }
 
