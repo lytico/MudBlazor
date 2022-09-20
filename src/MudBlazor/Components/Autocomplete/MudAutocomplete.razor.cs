@@ -380,6 +380,7 @@ namespace MudBlazor
         public async Task Clear()
         {
             IsOpen = false;
+            _items = null;
             await SetTextAsync(string.Empty, updateValue: false);
             await CoerceValueToText();
             await _elementReference.SetText("");
