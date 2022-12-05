@@ -46,7 +46,7 @@ namespace MudBlazor
             };
         }
 
-        [CascadingParameter] public bool RightToLeft { get; set; }
+        [CascadingParameter(Name = "RightToLeft")] public bool RightToLeft { get; set; }
 
 
         /// <summary>
@@ -214,16 +214,23 @@ namespace MudBlazor
         /// Gets or Sets the Template for Bullets
         /// </summary>
         [Category(CategoryTypes.Carousel.Appearance)]
-        [Parameter] public RenderFragment<bool> BulletsTemplate { get; set; }
+        [Parameter] public RenderFragment<bool> BulletTemplate { get; set; }
+
+        /// <summary>
+        /// Gets or Sets if swipe gestures are allowed for touch devices.
+        /// </summary>
+        [Category(CategoryTypes.Carousel.Behavior)]
+        [Parameter]
+        public bool EnableSwipeGesture { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets the Template for Delimiters.
         /// Deprecated, use BulletsTemplate instead.
         /// </summary>
         [Category(CategoryTypes.Carousel.Appearance)]
-        [Obsolete($"Use {nameof(BulletsTemplate)} instead", false)]
+        [Obsolete($"Use {nameof(BulletTemplate)} instead", false)]
         [ExcludeFromCodeCoverage]
-        [Parameter] public RenderFragment<bool> DelimiterTemplate { get => BulletsTemplate; set => BulletsTemplate = value; }
+        [Parameter] public RenderFragment<bool> DelimiterTemplate { get => BulletTemplate; set => BulletTemplate = value; }
 
 
         /// <summary>
@@ -253,14 +260,21 @@ namespace MudBlazor
         /// </summary>
         private void OnSwipe(SwipeDirection direction)
         {
+            if (!EnableSwipeGesture)
+            {
+                return;
+            }
+
             switch (direction)
             {
                 case SwipeDirection.LeftToRight:
-                    Previous();
+                    if(RightToLeft) Next();
+                    else Previous();
                     break;
 
                 case SwipeDirection.RightToLeft:
-                    Next();
+                    if(RightToLeft) Previous();
+                    else Next();
                     break;
             }
         }

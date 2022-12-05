@@ -14,7 +14,7 @@ namespace MudBlazor
             .AddClass("mud-navmenu-dense", Dense)
             .AddClass("mud-navmenu-rounded", Rounded)
             .AddClass($"mud-navmenu-bordered mud-border-{Color.ToDescriptionString()}", Bordered)
-          .AddClass(Class)
+            .AddClass(Class)
         .Build();
 
         [Category(CategoryTypes.NavMenu.Behavior)]

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -9,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor.Interfaces;
-using MudBlazor.Utilities;
 using static System.String;
 
 namespace MudBlazor
@@ -30,8 +30,8 @@ namespace MudBlazor
         /// If true, this is a top-level form component. If false, this input is a sub-component of another input (i.e. TextField, Select, etc).
         /// If it is sub-component, it will NOT do form validation!!
         /// </summary>
-        [CascadingParameter(Name = "Standalone")]
-        internal bool Standalone { get; set; } = true;
+        [CascadingParameter(Name = "SubscribeToParentForm")]
+        internal bool SubscribeToParentForm { get; set; } = true;
 
         /// <summary>
         /// If true, this form input is required to be filled out.
@@ -60,6 +60,13 @@ namespace MudBlazor
         [Parameter]
         [Category(CategoryTypes.FormComponent.Validation)]
         public bool Error { get; set; }
+
+        /// <summary>
+        /// The ErrorId that will be used by aria-describedby if Error true
+        /// </summary>
+        [Parameter]
+        [Category(CategoryTypes.FormComponent.Validation)]
+        public string ErrorId { get; set; }
 
         /// <summary>
         /// The generic converter of the component.
@@ -296,9 +303,11 @@ namespace MudBlazor
                 {
                     // this must be called in any case, because even if Validation is null the user might have set Error and ErrorText manually
                     // if Error and ErrorText are set by the user, setting them here will have no effect.
+                    // if Error, create an error id that can be used by aria-describedby on input control
                     ValidationErrors = errors;
                     Error = errors.Count > 0;
                     ErrorText = errors.FirstOrDefault();
+                    ErrorId = HasErrors ? Guid.NewGuid().ToString() : null;
                     Form?.Update(this);
                     StateHasChanged();
                 }
@@ -313,13 +322,14 @@ namespace MudBlazor
             return value != null;
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "In the context of EditContext.Model / FieldIdentifier.Model they won't get trimmed.")]
         protected virtual void ValidateWithAttribute(ValidationAttribute attr, T value, List<string> errors)
         {
             try
             {
-                // The validation context is applied either on the `EditContext.Model`, or `this` as a stub subject.
-                // Complex validation with fields references (like `CompareAttribute`) should use an EditContext.
-                var validationContextSubject = EditContext?.Model ?? this;
+                // The validation context is applied either on the `EditContext.Model`, '_fieldIdentifier.Model', or `this` as a stub subject.
+                // Complex validation with fields references (like `CompareAttribute`) should use an EditContext or For when not using EditContext.
+                var validationContextSubject = EditContext?.Model ?? _fieldIdentifier.Model ?? this;
                 var validationContext = new ValidationContext(validationContextSubject);
 
                 if (!_fieldIdentifier.Equals(default(FieldIdentifier)))
@@ -381,21 +391,17 @@ namespace MudBlazor
         {
             try
             {
-                if (Form==null)
+                if (Form?.Model == null)
                 {
-                    errors.Add("Form is null, unable to validate with model!");
                     return;
                 }
-                if (Form.Model == null)
-                {
-                    errors.Add("Form.Model is null, unable to validate with model!");
-                    return;
-                }
+                
                 if (For == null)
                 {
                     errors.Add($"For is null, please set parameter For on the form input component of type {GetType().Name}");
                     return;
                 }
+
                 foreach (var error in func(Form.Model, For.GetFullPathOfMember()))
                     errors.Add(error);
             }
@@ -449,6 +455,17 @@ namespace MudBlazor
         {
             try
             {
+                if (Form?.Model == null)
+                {
+                    return;
+                }
+                
+                if (For == null)
+                {
+                    errors.Add($"For is null, please set parameter For on the form input component of type {GetType().Name}");
+                    return;
+                }
+                
                 foreach (var error in await func(Form.Model, For.GetFullPathOfMember()))
                     errors.Add(error);
             }
@@ -456,6 +473,15 @@ namespace MudBlazor
             {
                 errors.Add("Error in validation func: " + e.Message);
             }
+        }
+
+        /// <summary>
+        /// Notify the Form that a field has changed if SubscribeToParentForm is true
+        /// </summary>
+        protected void FieldChanged(object newValue)
+        {
+            if (SubscribeToParentForm)
+                Form?.FieldChanged(this, newValue);
         }
 
         /// <summary>
@@ -510,13 +536,14 @@ namespace MudBlazor
 
         /// <summary>
         /// Specify an expression which returns the model's field for which validation messages should be displayed.
-        /// Currently only string fields are supported.
         /// </summary>
 #nullable enable
         [Parameter]
         [Category(CategoryTypes.FormComponent.Validation)]
         public Expression<Func<T>>? For { get; set; }
 #nullable disable
+
+        public bool IsForNull => For == null;
 
         /// <summary>
         /// Stores the list of validation attributes attached to the property targeted by <seealso cref="For"/>. If <seealso cref="For"/> is null, this property is null too.
@@ -560,10 +587,11 @@ namespace MudBlazor
             if (For != null && For != _currentFor)
             {
                 // Extract validation attributes
-                // Sourced from https://stackoverflow.com/a/43076222/4839162
+                // Sourced from https://stackoverflow.com/a/43076222/4839162 
+                // and also https://stackoverflow.com/questions/59407225/getting-a-custom-attribute-from-a-property-using-an-expression
                 var expression = (MemberExpression)For.Body;
-                var propertyInfo = (PropertyInfo)expression.Member;
-                _validationAttrsFor = propertyInfo.GetCustomAttributes(typeof(ValidationAttribute), true).Cast<ValidationAttribute>();
+                var propertyInfo = (PropertyInfo)expression.Expression?.Type.GetProperty(expression.Member.Name);
+                _validationAttrsFor = propertyInfo?.GetCustomAttributes(typeof(ValidationAttribute), true).Cast<ValidationAttribute>();
 
                 _fieldIdentifier = FieldIdentifier.Create(For);
                 _currentFor = For;
@@ -594,7 +622,10 @@ namespace MudBlazor
 
         protected virtual void RegisterAsFormComponent()
         {
-            Form?.Add(this);
+            if (SubscribeToParentForm)
+            {
+                Form?.Add(this);
+            }
         }
 
         /// <summary>

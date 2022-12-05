@@ -16,7 +16,7 @@ namespace MudBlazor.UnitTests.Components
         /// Here we are open the first, then the third and then the second
         /// </summary>
         [Test]
-        public void MudExpansionPanel_Respects_Collapsing_Order()
+        public async Task MudExpansionPanel_Respects_Collapsing_Order()
         {
             var comp = Context.RenderComponent<ExpansionPanelExpansionsTest>();
             //the order in which the panels are going to be clicked
@@ -24,8 +24,7 @@ namespace MudBlazor.UnitTests.Components
             var sequence = new List<int> { 0, 2, 1 };
             foreach (var item in sequence)
             {
-                var header = comp.FindAll(".mud-expand-panel-header")[item];
-                header.Click();
+                await comp.InvokeAsync(() => comp.FindAll(".mud-expand-panel-header")[item].Click());
 
                 var panels = comp.FindAll(".mud-expand-panel").ToList();
 
@@ -122,6 +121,92 @@ namespace MudBlazor.UnitTests.Components
             //we could close them all
             panels = comp.FindAll(".mud-panel-expanded").ToList();
             panels.Count.Should().Be(0);
+        }
+
+        [Test]
+        public async Task MudExpansionPanel_Other()
+        {
+            var comp = Context.RenderComponent<ExpansionPanelStartExpandedTest>();
+            var panel = comp.FindComponent<MudExpansionPanel>();
+#pragma warning disable BL0005
+            await comp.InvokeAsync(() => panel.Instance.Disabled = true);
+            await comp.InvokeAsync(() => panel.Instance.ToggleExpansion());
+            await comp.InvokeAsync(() => panel.Instance.Expand());
+            comp.WaitForAssertion(() => panel.Instance.IsExpanded.Should().BeTrue());
+            await comp.InvokeAsync(() => panel.Instance.Collapse());
+            comp.WaitForAssertion(() => panel.Instance.IsExpanded.Should().BeFalse());
+        }
+
+        /// <summary>
+        /// Tests that ExpandAll method expands all panels.
+        /// </summary>
+        [Test]
+        public void MudExpansionPanel_ExpandAll()
+        {
+            var panels = Context.RenderComponent<MudExpansionPanels>();
+            var panel1 = new MudExpansionPanel();
+            var panel2 = new MudExpansionPanel();
+            var panel3 = new MudExpansionPanel();
+            panels.Instance.AddPanel(panel1);
+            panels.Instance.AddPanel(panel2);
+            panels.Instance.AddPanel(panel3);
+            panel1.IsExpanded.Should().BeFalse();
+            panel2.IsExpanded.Should().BeFalse();
+            panel3.IsExpanded.Should().BeFalse();
+            panels.Instance.ExpandAll();
+            panel1.IsExpanded.Should().BeTrue();
+            panel2.IsExpanded.Should().BeTrue();
+            panel3.IsExpanded.Should().BeTrue();
+        }
+
+        /// <summary>
+        /// Tests that CollapseAll method collapses all panels.
+        /// </summary>
+        [Test]
+        public void MudExpansionPanel_CollapseAll()
+        {
+            var panels = Context.RenderComponent<MudExpansionPanels>();
+            var panel1 = new MudExpansionPanel();
+            var panel2 = new MudExpansionPanel();
+            var panel3 = new MudExpansionPanel();
+            panels.Instance.AddPanel(panel1);
+            panels.Instance.AddPanel(panel2);
+            panels.Instance.AddPanel(panel3);
+            panel1.Expand(false);
+            panel2.Expand(false);
+            panel3.Expand(false);
+            panel1.IsExpanded.Should().BeTrue();
+            panel2.IsExpanded.Should().BeTrue();
+            panel3.IsExpanded.Should().BeTrue();
+            panels.Instance.CollapseAll();
+            panel1.IsExpanded.Should().BeFalse();
+            panel2.IsExpanded.Should().BeFalse();
+            panel3.IsExpanded.Should().BeFalse();
+        }
+
+        /// <summary>
+        /// Tests that CollapseAllExcept method collapses all panels except one.
+        /// </summary>
+        [Test]
+        public void MudExpansionPanel_CollapseAllExcept()
+        {
+            var panels = Context.RenderComponent<MudExpansionPanels>();
+            var panel1 = new MudExpansionPanel();
+            var panel2 = new MudExpansionPanel();
+            var panel3 = new MudExpansionPanel();
+            panels.Instance.AddPanel(panel1);
+            panels.Instance.AddPanel(panel2);
+            panels.Instance.AddPanel(panel3);
+            panel1.Expand(false);
+            panel2.Expand(false);
+            panel3.Expand(false);
+            panel1.IsExpanded.Should().BeTrue();
+            panel2.IsExpanded.Should().BeTrue();
+            panel3.IsExpanded.Should().BeTrue();
+            panels.Instance.CollapseAllExcept(panel2);
+            panel1.IsExpanded.Should().BeFalse();
+            panel2.IsExpanded.Should().BeTrue();
+            panel3.IsExpanded.Should().BeFalse();
         }
     }
 }

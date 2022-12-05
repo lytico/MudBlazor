@@ -25,11 +25,18 @@ namespace MudBlazor
         public RenderFragment TitleContent { get; set; }
 
         /// <summary>
-        /// The message box title. If null or empty, title will be hidden
+        /// The message box message as string.
         /// </summary>
         [Parameter]
         [Category(CategoryTypes.MessageBox.Behavior)]
         public string Message { get; set; }
+
+        /// <summary>
+        /// The message box message as markup string.
+        /// </summary>
+        [Parameter]
+        [Category(CategoryTypes.MessageBox.Behavior)]
+        public MarkupString MarkupMessage { get; set; }
 
         /// <summary>
         /// Define the message box body as a renderfragment (overrides Message)
@@ -147,6 +154,7 @@ namespace MudBlazor
                 [nameof(Title)] = Title,
                 [nameof(TitleContent)] = TitleContent,
                 [nameof(Message)] = Message,
+                [nameof(MarkupMessage)] = MarkupMessage,
                 [nameof(MessageContent)] = MessageContent,
                 [nameof(CancelText)] = CancelText,
                 [nameof(CancelButton)] = CancelButton,
@@ -155,11 +163,11 @@ namespace MudBlazor
                 [nameof(YesText)] = YesText,
                 [nameof(YesButton)] = YesButton,
             };
-            _reference = DialogService.Show<MudMessageBox>(parameters: parameters, options: options, title: Title);
+            _reference = await DialogService.ShowAsync<MudMessageBox>(parameters: parameters, options: options, title: Title);
             var result = await _reference.Result;
-            if (result.Cancelled || !(result.Data is bool))
+            if (result.Cancelled || result.Data is not bool data)
                 return null;
-            return (bool)result.Data;
+            return data;
         }
 
         public void Close()
@@ -191,7 +199,14 @@ namespace MudBlazor
         private void OnNoClicked() => DialogInstance.Close(DialogResult.Ok(false));
 
         private void OnCancelClicked() => DialogInstance.Close(DialogResult.Cancel());
+
+        private void HandleKeyDown(KeyboardEventArgs args)
+        {
+            if (args.Key == "Escape")
+            {
+                OnCancelClicked();
+            }
+        }
+
     }
-
-
 }

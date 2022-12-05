@@ -21,16 +21,27 @@
             <div class="mud-table-pagination-caption">
                 <div class="mud-table-pagination-information">@RowsPerPageString</div>
             </div>
-            <MudSelect T="string" ValueChanged="SetRowsPerPage" Value="@Table?.RowsPerPage.ToString()" Class="mud-table-pagination-select" DisableUnderLine="true" Dense="true">
+            <CascadingValue Name="SubscribeToParentForm" Value="false" IsFixed>
+                <MudSelect T="string" ValueChanged="SetRowsPerPage" Value="@Table?.RowsPerPage.ToString()" Class="mud-table-pagination-select" DisableUnderLine="true" Dense="true">
                 @foreach (int pageSize in PageSizeOptions) {
                     <MudSelectItem T="string" Value="@pageSize.ToString()">@pageSize.ToString().ToUpper()</MudSelectItem>
                 }
             </MudSelect>
+            </CascadingValue>
         </div>
     }
     @if (!HidePageNumber) {
         <div class="mud-table-pagination-caption">
             <div class="mud-table-page-number-information">@Info</div>
+        </div>
+    }
+    @if (!HidePagination)
+    {
+        <div class="mud-table-pagination-actions">
+            <MudIconButton Class="mud-flip-x-rtl" Icon="@FirstIcon" Disabled="@BackButtonsDisabled" @onclick="@(() => Table.NavigateTo(Page.First))" aria-label="First page" />
+            <MudIconButton Class="mud-flip-x-rtl" Icon="@BeforeIcon" Disabled="@BackButtonsDisabled" @onclick="@(() => Table.NavigateTo(Page.Previous))" aria-label="Previous page" />
+            <MudIconButton Class="mud-flip-x-rtl" Icon="@NextIcon" Disabled="@ForwardButtonsDisabled" @onclick="@(() => Table.NavigateTo(Page.Next))" aria-label="Next page" />
+            <MudIconButton Class="mud-flip-x-rtl" Icon="@LastIcon" Disabled="@ForwardButtonsDisabled" @onclick="@(() => Table.NavigateTo(Page.Last))" aria-label="Last page" />
         </div>
     }
 

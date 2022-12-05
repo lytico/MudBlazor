@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components;
 using MudBlazor.Extensions;
 using MudBlazor.Utilities;
@@ -23,11 +24,6 @@ namespace MudBlazor
                 .AddClass($"mud-progress-indeterminate", Indeterminate)
                 .AddClass($"mud-progress-static", !Indeterminate)
                 .Build();
-
-        protected string DivStyle =>
-            new StyleBuilder("transform", "rotate(-90deg)")
-            .AddStyle(Style)
-            .Build();
 
         /// <summary>
         /// The color of the component. It supports the theme colors.
@@ -98,9 +94,11 @@ namespace MudBlazor
 
         #region --> Obsolete Forwarders for Backwards-Compatiblilty
 
+        [ExcludeFromCodeCoverage]
         [Obsolete("Use Min instead.", true)]
         [Parameter] public double Minimum { get => Min; set => Min = value; }
 
+        [ExcludeFromCodeCoverage]
         [Obsolete("Use Max instead.", true)]
         [Parameter] public double Maximum { get => Max; set => Max = value; }
 
