@@ -38,12 +38,14 @@ namespace MudBlazor
         public RenderFragment<T> RowEditingTemplate { get; set; }
 
         #region Code for column based approach
+
         /// <summary>
         /// Defines how a table column looks like. Columns components should inherit from MudBaseColumn
         /// </summary>
         [Parameter]
         [Category(CategoryTypes.Table.Behavior)]
         public RenderFragment<T> Columns { get; set; }
+
         /// <summary>
         /// Comma separated list of columns to show if there is no templates defined
         /// </summary>
@@ -69,6 +71,7 @@ namespace MudBlazor
                 }
             }
         }
+
         /// <summary>
         /// Creates a default Column renderfragment if there is no templates defined
         /// </summary>
@@ -81,6 +84,7 @@ namespace MudBlazor
                 {
                     quickcolumnslist = QuickColumns.Split(",");
                 }
+
                 // Create template from T
                 Columns = context => builder =>
                 {
@@ -105,7 +109,6 @@ namespace MudBlazor
                             }
                         }
                     }
-
                 };
             }
         }
@@ -120,7 +123,9 @@ namespace MudBlazor
                 builder.CloseComponent();
             }
         }
+
         #endregion
+
         /// <summary>
         /// Defines the table body content when there are no matching records found
         /// </summary>
@@ -182,13 +187,11 @@ namespace MudBlazor
             {
                 item = (T)o;
             }
-            catch (Exception) { /*ignore*/}
-            OnRowClick.InvokeAsync(new TableRowClickEventArgs<T>()
-            {
-                MouseEventArgs = args,
-                Row = row,
-                Item = item,
-            });
+            catch (Exception)
+            { /*ignore*/
+            }
+
+            OnRowClick.InvokeAsync(new TableRowClickEventArgs<T>() { MouseEventArgs = args, Row = row, Item = item, });
         }
 
         /// <summary>
@@ -223,6 +226,7 @@ namespace MudBlazor
                 SelectedItemChanged.InvokeAsync(value);
             }
         }
+
         private T _selectedItem;
 
         /// <summary>
@@ -259,6 +263,7 @@ namespace MudBlazor
                 }
                 else
                     Context.Selection = value;
+
                 SelectedItemsChanged.InvokeAsync(Context.Selection);
                 InvokeAsync(StateHasChanged);
             }
@@ -289,6 +294,7 @@ namespace MudBlazor
         [Parameter] public EventCallback<HashSet<T>> SelectedItemsChanged { get; set; }
 
         private TableGroupDefinition<T> _groupBy;
+
         /// <summary>
         /// Defines data grouping parameters. It can has N hierarchical levels
         /// </summary>
@@ -367,6 +373,7 @@ namespace MudBlazor
                     _preEditSort = Context.Sort(Items).ToList();
                     return _preEditSort;
                 }
+
                 _preEditSort = Context.Sort(Items.Where(Filter)).ToList();
                 return _preEditSort;
             }
@@ -474,6 +481,7 @@ namespace MudBlazor
                 foreach (var item in FilteredItems)
                     Context.Selection.Add(item);
             }
+
             Context.UpdateRowCheckBoxes(false);
             SelectedItemsChanged.InvokeAsync(SelectedItems);
         }
@@ -510,22 +518,16 @@ namespace MudBlazor
             Loading = true;
             var label = Context.CurrentSortLabel;
 
-            var state = new TableState
-            {
-                Page = CurrentPage,
-                PageSize = RowsPerPage,
-                SortDirection = Context.SortDirection,
-                SortLabel = label?.SortLabel
-            };
+            var state = new TableState { Page = CurrentPage, PageSize = RowsPerPage, SortDirection = Context.SortDirection, SortLabel = label?.SortLabel };
 
             _server_data = await ServerData(state);
-            
+
             CurrentPage = state.Page;
 
             if (CurrentPage * RowsPerPage > _server_data.TotalItems)
                 CurrentPage = 0;
 
-            
+
             Loading = false;
             StateHasChanged();
             Context?.PagerStateHasChanged?.Invoke();
@@ -581,5 +583,17 @@ namespace MudBlazor
             Context.UpdateRowCheckBoxes(false);
             SelectedItemsChanged.InvokeAsync(SelectedItems);
         }
+
+        #region lytico additions
+
+        public async Task ReloadItems()
+        {
+            _preEditSort = null;
+            StateHasChanged();
+            await Task.CompletedTask;
+        }
+
+        #endregion
+
     }
 }
