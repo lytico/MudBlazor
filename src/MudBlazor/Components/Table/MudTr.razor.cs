@@ -57,13 +57,14 @@ namespace MudBlazor
 
         public void OnRowClicked(MouseEventArgs args)
         {
+            var table = Context?.Table;
+            if (table is null)
+                return;
+            table.SetSelectedItem(Item);
             StartEditingItem(buttonClicked: false);
-
-            if (Context?.Table.MultiSelection == true && !(Context?.Table.IsEditable == true))
-            {
+            if (table.MultiSelection && table.SelectOnRowClick && !table.IsEditable)
                 IsChecked = !IsChecked;
-            }
-            Context?.Table.FireRowClickEvent(args, this, Item);
+            table.FireRowClickEvent(args, this, Item);
         }
 
         private void StartEditingItem() => StartEditingItem(buttonClicked: true);
@@ -90,7 +91,7 @@ namespace MudBlazor
                 hasBeenClickedFirstTime = true;
 
                 // Set to false that the item has been committed
-                // Set to false that the item has been cancelled
+                // Set to false that the item has been canceled
                 hasBeenCanceled = false;
                 hasBeenCommitted = false;
 
@@ -115,15 +116,19 @@ namespace MudBlazor
             Context?.Remove(this, Item);
         }
 
-        public void SetChecked(bool b, bool notify)
+        public void SetChecked(bool checkedState, bool notify)
+        {
+            if (_checked != checkedState)
         {
             if (notify)
-                IsChecked = b;
+                    IsChecked = checkedState;
             else
             {
-                _checked = b;
+                    _checked = checkedState;
+                    if (IsCheckable)
                 InvokeAsync(StateHasChanged);
             }
+        }
         }
 
         private void FinishEdit(MouseEventArgs ev)
@@ -141,7 +146,7 @@ namespace MudBlazor
             Context.Table.RowEditCommit?.Invoke(Item);
 
             // Set to true that the item has been committed
-            // Set to false that the item has been cancelled
+            // Set to false that the item has been canceled
             hasBeenCommitted = true;
             hasBeenCanceled = false;
 

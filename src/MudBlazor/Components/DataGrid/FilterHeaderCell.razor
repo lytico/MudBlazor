@@ -2,6 +2,8 @@
 @inherits MudComponentBase
 @typeparam T
 
+@if (Column != null && !Column.Hidden)
+{
 <th scope="col" class="@_classname" style="@_style" colspan="@Column?.HeaderColSpan" @attributes="@UserAttributes">
     @if (null != Column && Column.filterable)
     {
@@ -63,3 +65,5 @@
         }
     }
 </th>
+}
+

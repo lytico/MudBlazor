@@ -80,8 +80,8 @@ namespace MudBlazor
         /// </summary>
         [Parameter] public EventCallback<MouseEventArgs> OnRowClick { get; set; }
 
-        private bool _checked;
-        public bool IsChecked
+        private bool? _checked;
+        public bool? IsChecked
         {
             get => _checked;
             set
@@ -90,7 +90,7 @@ namespace MudBlazor
                 {
                     _checked = value;
                     if (IsCheckable)
-                        Table.OnGroupHeaderCheckboxClicked(value, Items.ToList());
+                        Table.OnGroupHeaderCheckboxClicked(_checked.HasValue && _checked.Value, Items.ToList());
                 }
             }
         }
@@ -114,8 +114,6 @@ namespace MudBlazor
             {
                 _innerGroupItems = Table?.GetItemsOfGroup(GroupDefinition.InnerGroup, Items);
             }
-            if (IsCheckable && Items is not null && Table is not null && Table.SelectedItems.Count > 0)
-                _checked = Items.All(Table.SelectedItems.Contains);
         }
 
         public void Dispose()
@@ -123,16 +121,19 @@ namespace MudBlazor
             ((TableContext<T>)Context)?.GroupRows.Remove(this);
         }
 
-        public void SetChecked(bool b, bool notify)
+        public void SetChecked(bool? checkedState, bool notify)
+        {
+            if (_checked != checkedState)
         {
             if (notify)
-                IsChecked = b;
+                    IsChecked = checkedState;
             else
             {
-                _checked = b;
+                    _checked = checkedState;
                 if (IsCheckable)
                     InvokeAsync(StateHasChanged);
             }
+        }
         }
 
         private MudTable<T> Table
