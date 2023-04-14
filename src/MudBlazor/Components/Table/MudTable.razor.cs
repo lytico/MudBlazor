@@ -602,6 +602,11 @@ namespace MudBlazor
             await Task.CompletedTask;
         }
 
+        public void SetSelectedItems(HashSet<T> items)
+        {
+            SelectedItems = items;
+        }
+        
         #endregion
 
     }
