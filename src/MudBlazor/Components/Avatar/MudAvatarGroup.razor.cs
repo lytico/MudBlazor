@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
-using MudBlazor.Extensions;
+using MudBlazor.Interfaces;
 using MudBlazor.Utilities;
 
 namespace MudBlazor
 {
+#nullable enable
     partial class MudAvatarGroup : MudComponentBase
     {
         private bool _childrenNeedUpdates = false;
@@ -28,6 +29,7 @@ namespace MudBlazor
         /// Spacing between avatars where 0 is none and 16 max.
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Behavior)]
         public int Spacing
         {
             get => _spacing;
@@ -44,42 +46,58 @@ namespace MudBlazor
         /// <summary>
         /// Outlines the grouped avatars to distinguish them, useful when avatars are the same color or uses images.
         /// </summary>
-        [Parameter] public bool Outlined { get; set; } = true;
+        [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Appearance)]
+        public bool Outlined { get; set; } = true;
 
         /// <summary>
         /// Sets the color of the outline if its used.
         /// </summary>
-        [Parameter] public Color OutlineColor { get; set; } = Color.Surface;
+        [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Appearance)]
+        public Color OutlineColor { get; set; } = Color.Surface;
 
         /// <summary>
         /// Elevation of the MaxAvatar the higher the number, the heavier the drop-shadow.
         /// </summary>
-        [Parameter] public int MaxElevation { set; get; } = 0;
+        [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Appearance)]
+        public int MaxElevation { set; get; } = 0;
 
         /// <summary>
         /// If true, MaxAvatar border-radius is set to 0.
         /// </summary>
-        [Parameter] public bool MaxSquare { get; set; }
+        [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Appearance)]
+        public bool MaxSquare { get; set; }
 
         /// <summary>
         /// If true, MaxAvatar will be rounded.
         /// </summary>
-        [Parameter] public bool MaxRounded { get; set; }
+        [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Appearance)]
+        public bool MaxRounded { get; set; }
 
         /// <summary>
         /// Color for the MaxAvatar.
         /// </summary>
-        [Parameter] public Color MaxColor { get; set; } = Color.Default;
+        [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Appearance)]
+        public Color MaxColor { get; set; } = Color.Default;
 
         /// <summary>
         /// Size of the MaxAvatar.
         /// </summary>
-        [Parameter] public Size MaxSize { get; set; } = Size.Medium;
+        [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Appearance)]
+        public Size MaxSize { get; set; } = Size.Medium;
 
         /// <summary>
         /// Variant of the MaxAvatar.
         /// </summary>
-        [Parameter] public Variant MaxVariant { get; set; } = Variant.Filled;
+        [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Appearance)]
+        public Variant MaxVariant { get; set; } = Variant.Filled;
 
         private int _max = 3;
 
@@ -87,6 +105,7 @@ namespace MudBlazor
         /// Max avatars to show before showing +x avatar, default value 0 has no max.
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Behavior)]
         public int Max
         {
             get => _max;
@@ -103,12 +122,16 @@ namespace MudBlazor
         /// <summary>
         /// Custom class/classes for MaxAvatar
         /// </summary>
-        [Parameter] public string MaxAvatarClass { get; set; }
+        [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Appearance)]
+        public string? MaxAvatarClass { get; set; }
 
         /// <summary>
         /// Child content of the component.
         /// </summary>
-        [Parameter] public RenderFragment ChildContent { get; set; }
+        [Parameter]
+        [Category(CategoryTypes.AvatarGroup.Behavior)]
+        public RenderFragment? ChildContent { get; set; }
 
         internal List<MudAvatar> _avatars = new();
 
@@ -131,10 +154,7 @@ namespace MudBlazor
 
         internal bool MaxGroupReached(MudAvatar avatar)
         {
-            if (_avatars.IndexOf(avatar) < Max)
-                return true;
-            else
-                return false;
+            return _avatars.IndexOf(avatar) < Max;
         }
 
         protected override void OnParametersSet()
@@ -143,9 +163,9 @@ namespace MudBlazor
 
             if (_childrenNeedUpdates == true)
             {
-                foreach (var avatar in _avatars)
+                foreach (IMudStateHasChanged avatar in _avatars)
                 {
-                    avatar.ForceRedraw();
+                    avatar.StateHasChanged();
                 }
 
                 _childrenNeedUpdates = false;

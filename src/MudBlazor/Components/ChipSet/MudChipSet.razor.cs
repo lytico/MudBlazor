@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using MudBlazor.Interfaces;
 using MudBlazor.Utilities;
 
 namespace MudBlazor
@@ -18,30 +19,36 @@ namespace MudBlazor
         /// <summary>
         /// Child content of component.
         /// </summary>
-        [Parameter] public RenderFragment ChildContent { get; set; }
+        [Parameter]
+        [Category(CategoryTypes.ChipSet.Behavior)]
+        public RenderFragment ChildContent { get; set; }
 
         /// <summary>
         /// Allows to select more than one chip.
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.ChipSet.Behavior)]
         public bool MultiSelection { get; set; } = false;
 
         /// <summary>
         /// Will not allow to deselect the selected chip in single selection mode.
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.ChipSet.Behavior)]
         public bool Mandatory { get; set; } = false;
 
         /// <summary>
         /// Will make all chips closable.
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.ChipSet.Behavior)]
         public bool AllClosable { get; set; } = false;
 
         /// <summary>
         ///  Will show a check-mark for the selected components.
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.ChipSet.Appearance)]
         public bool Filter
         {
             get => _filter;
@@ -51,8 +58,8 @@ namespace MudBlazor
                     return;
                 _filter = value;
                 StateHasChanged();
-                foreach (var chip in _chips)
-                    chip.ForceRerender();
+                foreach (IMudStateHasChanged chip in _chips)
+                    chip.StateHasChanged();
             }
         }
 
@@ -60,12 +67,14 @@ namespace MudBlazor
         ///  Will make all chips read only.
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.ChipSet.Behavior)]
         public bool ReadOnly { get; set; } = false;
 
         /// <summary>
         /// The currently selected chip in Choice mode
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.ChipSet.Behavior)]
         public MudChip SelectedChip
         {
             get { return _chips.OfType<MudChip>().FirstOrDefault(x => x.IsSelected); }
@@ -99,6 +108,7 @@ namespace MudBlazor
         /// The currently selected chips in Filter mode
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.ChipSet.Behavior)]
         public MudChip[] SelectedChips
         {
             get { return _chips.OfType<MudChip>().Where(x => x.IsSelected).ToArray(); }
@@ -139,6 +149,7 @@ namespace MudBlazor
         /// The Comparer to use for comparing selected values internally.
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.ChipSet.Behavior)]
         public IEqualityComparer<object> Comparer
         {
             get => _comparer;
@@ -162,6 +173,7 @@ namespace MudBlazor
         /// Note: make the list Clickable for item selection to work.
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.ChipSet.Behavior)]
         public ICollection<object> SelectedValues
         {
             get => _selectedValues;
@@ -210,16 +222,8 @@ namespace MudBlazor
         [Parameter]
         public EventCallback<MudChip> OnClose { get; set; }
 
-        protected override Task OnAfterRenderAsync(bool firstRender)
-        {
-            if (firstRender)
-                Console.WriteLine("First Render Done");
-            return base.OnAfterRenderAsync(firstRender);
-        }
-
         internal Task Add(MudChip chip)
         {
-            Console.WriteLine("Add chip");
             _chips.Add(chip);
             if (_selectedValues.Contains(chip.Value))
                 chip.IsSelected = true;

@@ -18,6 +18,7 @@ namespace MudBlazor
         public MudDateRangePicker()
         {
             DisplayMonths = 2;
+            AdornmentAriaLabel = "Open Date Range Picker";
         }
 
         /// <summary>
@@ -29,6 +30,7 @@ namespace MudBlazor
         /// The currently selected range (two-way bindable). If null, then nothing was selected.
         /// </summary>
         [Parameter]
+        [Category(CategoryTypes.FormComponent.Data)]
         public DateRange DateRange
         {
             get => _dateRange;
@@ -52,6 +54,8 @@ namespace MudBlazor
                     return;
                 }
 
+                Touched = true;
+
                 _dateRange = range;
                 _value = range?.End;
 
@@ -73,7 +77,8 @@ namespace MudBlazor
                 }
 
                 await DateRangeChanged.InvokeAsync(_dateRange);
-                BeginValidate();
+                await BeginValidateAsync();
+                FieldChanged(_value);
             }
         }
 
@@ -240,7 +245,7 @@ namespace MudBlazor
             }
 
             _secondDate = dateTime;
-            if (PickerActions == null)
+            if (PickerActions == null || AutoClose)
             {
                 Submit();
 
@@ -258,9 +263,9 @@ namespace MudBlazor
             base.OnOpened();
         }
 
-        protected override async void Submit()
+        protected internal override async void Submit()
         {
-            if (ReadOnly)
+            if (GetReadOnlyState())
                 return;
             if (_firstDate == null || _secondDate == null)
                 return;

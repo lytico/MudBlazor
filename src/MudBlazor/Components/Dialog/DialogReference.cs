@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 
@@ -35,9 +36,7 @@ namespace MudBlazor
 
         public virtual bool Dismiss(DialogResult result)
         {
-            _resultCompletion.TrySetResult(result);
-
-            return true;
+            return _resultCompletion.TrySetResult(result);
         }
 
         public Guid Id { get; }
@@ -47,7 +46,7 @@ namespace MudBlazor
 
         public Task<DialogResult> Result => _resultCompletion.Task;
 
-        public bool AreParametersRendered { get; set; }
+        TaskCompletionSource<bool> IDialogReference.RenderCompleteTaskCompletionSource { get; } = new();
 
         public void InjectDialog(object inst)
         {
@@ -59,9 +58,9 @@ namespace MudBlazor
             RenderFragment = rf;
         }
 
-        public async Task<T> GetReturnValueAsync<T>()
+        public async Task<T> GetReturnValueAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>()
         {
-            var result=await Result;
+            var result = await Result;
             try
             {
                 return (T)result.Data;
