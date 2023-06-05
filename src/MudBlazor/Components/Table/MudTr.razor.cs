@@ -102,6 +102,9 @@ namespace MudBlazor
                 Context.Table.RowEditPreview?.Invoke(Item);
 
                 Context?.Table.SetEditingItem(Item);
+
+                if (Context != null)
+                    Context.Table.Validator.Model = Item;
             }
         }
 
@@ -119,16 +122,16 @@ namespace MudBlazor
         public void SetChecked(bool checkedState, bool notify)
         {
             if (_checked != checkedState)
-        {
-            if (notify)
-                    IsChecked = checkedState;
-            else
             {
+                if (notify)
+                    IsChecked = checkedState;
+                else
+                {
                     _checked = checkedState;
                     if (IsCheckable)
-                InvokeAsync(StateHasChanged);
+                        InvokeAsync(StateHasChanged);
+                }
             }
-        }
         }
 
         private void FinishEdit(MouseEventArgs ev)

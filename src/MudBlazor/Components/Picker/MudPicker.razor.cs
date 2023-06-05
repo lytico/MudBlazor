@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MudBlazor.Interfaces;
 using MudBlazor.Services;
 using MudBlazor.Utilities;
 
@@ -30,7 +31,7 @@ namespace MudBlazor
                 .AddClass($"mud-elevation-{_pickerElevation}", PickerVariant == PickerVariant.Static)
                 .AddClass($"mud-picker-input-button", !Editable && PickerVariant != PickerVariant.Static)
                 .AddClass($"mud-picker-input-text", Editable && PickerVariant != PickerVariant.Static)
-                .AddClass($"mud-disabled", Disabled && PickerVariant != PickerVariant.Static)
+                .AddClass($"mud-disabled", GetDisabledState() && PickerVariant != PickerVariant.Static)
                 .AddClass(Class)
                 .Build();
 
@@ -129,13 +130,6 @@ namespace MudBlazor
         public bool Square { get; set; }
 
         /// <summary>
-        /// If true, no date or time can be defined.
-        /// </summary>
-        [Parameter]
-        [Category(CategoryTypes.FormComponent.Behavior)]
-        public bool ReadOnly { get; set; }
-
-        /// <summary>
         /// If true, border-radius is set to theme default when in Static Mode.
         /// </summary>
         [Parameter]
@@ -176,6 +170,17 @@ namespace MudBlazor
         [Parameter]
         [Category(CategoryTypes.FormComponent.Behavior)]
         public bool Disabled { get; set; }
+        [CascadingParameter(Name = "ParentDisabled")] private bool ParentDisabled { get; set; }
+        protected bool GetDisabledState() => Disabled || ParentDisabled;
+
+        /// <summary>
+        /// If true, no date or time can be defined.
+        /// </summary>
+        [Parameter]
+        [Category(CategoryTypes.FormComponent.Behavior)]
+        public bool ReadOnly { get; set; }
+        [CascadingParameter(Name = "ParentReadOnly")] private bool ParentReadOnly { get; set; }
+        protected bool GetReadOnlyState() => ReadOnly || ParentReadOnly;
 
         /// <summary>
         /// If true, the picker will be editable.
@@ -264,6 +269,12 @@ namespace MudBlazor
         /// </summary>
         [Parameter]
         public EventCallback<string> TextChanged { get; set; }
+
+        /// <summary>
+        /// Fired when the text input is clicked.
+        /// </summary>
+        [Parameter]
+        public EventCallback<MouseEventArgs> OnClick { get; set; }
 
         /// <summary>
         /// The currently selected string value (two-way bindable)
@@ -387,10 +398,21 @@ namespace MudBlazor
             }
         }
 
+        [Obsolete($"Use {nameof(ResetValueAsync)} instead. This will be removed in v7")]
+        [ExcludeFromCodeCoverage]
         protected override void ResetValue()
         {
             _inputReference?.Reset();
             base.ResetValue();
+        }
+
+        protected override async Task ResetValueAsync()
+        {
+            if (_inputReference is not null)
+            {
+                await _inputReference.ResetAsync();
+            }
+            await base.ResetValueAsync();
         }
 
         protected internal MudTextField<string> _inputReference;
@@ -461,6 +483,15 @@ namespace MudBlazor
             }
         }
 
+        private async Task OnClickAsync(MouseEventArgs args)
+        {
+            if (!Editable)
+                ToggleState();
+
+            if (OnClick.HasDelegate)
+                await OnClick.InvokeAsync(args);
+        }
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender == true)
@@ -473,7 +504,7 @@ namespace MudBlazor
 
         protected internal void ToggleState()
         {
-            if (Disabled)
+            if (GetDisabledState() || GetReadOnlyState())
                 return;
             if (IsOpen)
             {
@@ -521,7 +552,7 @@ namespace MudBlazor
 
         protected internal virtual void HandleKeyDown(KeyboardEventArgs obj)
         {
-            if (Disabled || ReadOnly)
+            if (GetDisabledState() || GetReadOnlyState())
                 return;
             switch (obj.Key)
             {
@@ -555,6 +586,8 @@ namespace MudBlazor
 
             }
         }
+
+
 
     }
 }

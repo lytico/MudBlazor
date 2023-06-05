@@ -15,6 +15,8 @@ namespace MudBlazor
         public object Data { get; }
         public Type DataType { get; }
         public bool Canceled { get; }
+        [Obsolete("Use Canceled instead", false)]
+        public bool Cancelled => Canceled;
 
         protected internal DialogResult(object data, Type resultType, bool canceled)
         {

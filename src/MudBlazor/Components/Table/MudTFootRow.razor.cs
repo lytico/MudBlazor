@@ -36,7 +36,7 @@ namespace MudBlazor
         /// </summary>
         [Parameter] public EventCallback<MouseEventArgs> OnRowClick { get; set; }
 
-        private bool? _checked;
+        private bool? _checked = false;
         public bool? IsChecked
         {
             get => _checked;
@@ -65,16 +65,16 @@ namespace MudBlazor
         public void SetChecked(bool? checkedState, bool notify)
         {
             if (_checked != checkedState)
-        {
-            if (notify)
-                    IsChecked = checkedState;
-            else
             {
+                if (notify)
+                    IsChecked = checkedState;
+                else
+                {
                     _checked = checkedState;
-                if (IsCheckable)
-                    InvokeAsync(StateHasChanged);
+                    if (IsCheckable)
+                        InvokeAsync(StateHasChanged);
+                }
             }
         }
     }
-}
 }

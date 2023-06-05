@@ -161,7 +161,7 @@ namespace MudBlazor
                     await SetTextAsync(Converter.Set(_value), false);
                 UpdateTimeSetFromTime();
                 await TimeChanged.InvokeAsync(_value);
-                BeginValidate();
+                await BeginValidateAsync();
                 FieldChanged(_value);
             }
         }
@@ -194,7 +194,7 @@ namespace MudBlazor
 
         protected internal override void Submit()
         {
-            if (ReadOnly)
+            if (GetReadOnlyState())
                 return;
             Time = TimeIntermediate;
         }
@@ -472,7 +472,11 @@ namespace MudBlazor
                     h = value + 12;
             }
             _timeSet.Hour = h;
-            UpdateTime();
+
+            if(_currentView == OpenTo.Hours)
+            {
+                UpdateTime();
+            }
 
             if (TimeEditMode == TimeEditMode.Normal)
             {
@@ -522,7 +526,7 @@ namespace MudBlazor
 
         protected internal override void HandleKeyDown(KeyboardEventArgs obj)
         {
-            if (Disabled || ReadOnly)
+            if (GetDisabledState() || GetReadOnlyState())
                 return;
             base.HandleKeyDown(obj);
             switch (obj.Key)
@@ -641,6 +645,8 @@ namespace MudBlazor
                     }
                     break;
             }
+
+            StateHasChanged();
         }
 
         protected void ChangeMinute(int val)

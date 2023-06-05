@@ -38,14 +38,12 @@ namespace MudBlazor
         public RenderFragment<T> RowEditingTemplate { get; set; }
 
         #region Code for column based approach
-
         /// <summary>
         /// Defines how a table column looks like. Columns components should inherit from MudBaseColumn
         /// </summary>
         [Parameter]
         [Category(CategoryTypes.Table.Behavior)]
         public RenderFragment<T> Columns { get; set; }
-
         /// <summary>
         /// Comma separated list of columns to show if there is no templates defined
         /// </summary>
@@ -71,12 +69,14 @@ namespace MudBlazor
                 }
             }
         }
-
         /// <summary>
         /// Creates a default Column renderfragment if there is no templates defined
         /// </summary>
         protected override void OnInitialized()
         {
+            if (HasServerData)
+                Loading = true;
+
             if (Columns == null && RowTemplate == null && RowEditingTemplate == null)
             {
                 string[] quickcolumnslist = null;
@@ -84,7 +84,6 @@ namespace MudBlazor
                 {
                     quickcolumnslist = QuickColumns.Split(",");
                 }
-
                 // Create template from T
                 Columns = context => builder =>
                 {
@@ -124,9 +123,7 @@ namespace MudBlazor
                 builder.CloseComponent();
             }
         }
-
         #endregion
-
         /// <summary>
         /// Defines the table body content when there are no matching records found
         /// </summary>
@@ -229,7 +226,6 @@ namespace MudBlazor
                 SelectedItemChanged.InvokeAsync(value);
             }
         }
-
         private T _selectedItem;
 
         /// <summary>
@@ -266,7 +262,6 @@ namespace MudBlazor
                 }
                 else
                     Context.Selection = value;
-
                 SelectedItemsChanged.InvokeAsync(Context.Selection);
                 InvokeAsync(StateHasChanged);
             }
@@ -297,7 +292,6 @@ namespace MudBlazor
         [Parameter] public EventCallback<HashSet<T>> SelectedItemsChanged { get; set; }
 
         private TableGroupDefinition<T> _groupBy;
-
         /// <summary>
         /// Defines data grouping parameters. It can has N hierarchical levels
         /// </summary>
@@ -356,28 +350,31 @@ namespace MudBlazor
         [Category(CategoryTypes.Table.Grouping)]
         public RenderFragment<TableGroupData<object, T>> GroupFooterTemplate { get; set; }
 
-        private IEnumerable<T> _preEditSort { get; set; } = null;
-        private bool _hasPreEditSort => _preEditSort != null;
+        private IEnumerable<T> _preEditSort;
+        private bool _currentRenderFilteredItemsCached;
+        private bool HasPreEditSort => _preEditSort != null;
+
+        /// <summary>
+        /// For unit testing the filtering cache mechanism.
+        /// </summary>
+        internal uint FilteringRunCount { get; private set; } = 0;
 
         public IEnumerable<T> FilteredItems
         {
             get
             {
-                if (IsEditing && _hasPreEditSort)
+                if (_currentRenderFilteredItemsCached) return _preEditSort;
+                if (IsEditing && HasPreEditSort)
                     return _preEditSort;
-                if (ServerData != null)
-                {
-                    _preEditSort = _server_data.Items.ToList();
-                    return _preEditSort;
-                }
-
-                if (Filter == null)
-                {
+                if (HasServerData)
+                    _preEditSort = _server_data.Items?.ToList();
+                else if (Filter == null)
                     _preEditSort = Context.Sort(Items).ToList();
-                    return _preEditSort;
-                }
+                else
+                    _preEditSort = Context.Sort(Items.Where(Filter)).ToList();
 
-                _preEditSort = Context.Sort(Items.Where(Filter)).ToList();
+                _currentRenderFilteredItemsCached = true;
+                unchecked { FilteringRunCount++; }
                 return _preEditSort;
             }
         }
@@ -388,7 +385,7 @@ namespace MudBlazor
             {
                 if (@PagerContent == null)
                     return FilteredItems; // we have no pagination
-                if (ServerData == null)
+                if (!HasServerData)
                 {
                     var filteredItemCount = GetFilteredItemsCount();
                     int lastPageNo;
@@ -408,7 +405,7 @@ namespace MudBlazor
             if (n < 0 || pageSize <= 0)
                 return Array.Empty<T>();
 
-            if (ServerData != null)
+            if (HasServerData)
                 return _server_data.Items;
 
             return FilteredItems.Skip(n * pageSize).Take(pageSize);
@@ -418,7 +415,7 @@ namespace MudBlazor
         {
             get
             {
-                if (ServerData != null)
+                if (HasServerData)
                     return (int)Math.Ceiling(_server_data.TotalItems / (double)RowsPerPage);
 
                 return (int)Math.Ceiling(FilteredItems.Count() / (double)RowsPerPage);
@@ -427,7 +424,7 @@ namespace MudBlazor
 
         public override int GetFilteredItemsCount()
         {
-            if (ServerData != null)
+            if (HasServerData)
                 return _server_data.TotalItems;
             return FilteredItems.Count();
         }
@@ -472,7 +469,9 @@ namespace MudBlazor
                 Context.Selection.Add(item);
             else
                 Context.Selection.Remove(item);
-            SelectedItemsChanged.InvokeAsync(SelectedItems);
+
+            if (SelectedItemsChanged.HasDelegate)
+                SelectedItemsChanged.InvokeAsync(SelectedItems);
         }
 
         internal override void OnHeaderCheckboxClicked(bool checkedState)
@@ -485,17 +484,10 @@ namespace MudBlazor
             else
                 Context.Selection.Clear();
 
-            Context.UpdateRowCheckBoxes(notify: false);
-            SelectedItemsChanged.InvokeAsync(SelectedItems);
-        }
+            Context.UpdateRowCheckBoxes();
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            if (firstRender)
-                await InvokeServerLoadFunc();
-
-            TableContext.UpdateRowCheckBoxes();
-            await base.OnAfterRenderAsync(firstRender);
+            if (SelectedItemsChanged.HasDelegate)
+                SelectedItemsChanged.InvokeAsync(SelectedItems);
         }
 
         /// <summary>
@@ -515,10 +507,11 @@ namespace MudBlazor
 
         internal override async Task InvokeServerLoadFunc()
         {
-            if (ServerData == null)
+            if (!HasServerData)
                 return;
 
             Loading = true;
+            await InvokeAsync(StateHasChanged);
             var label = Context.CurrentSortLabel;
 
             var state = new TableState
@@ -536,7 +529,6 @@ namespace MudBlazor
             if (CurrentPage * RowsPerPage > _server_data.TotalItems)
                 CurrentPage = 0;
 
-
             Loading = false;
             StateHasChanged();
             Context?.PagerStateHasChanged?.Invoke();
@@ -547,6 +539,14 @@ namespace MudBlazor
             base.OnAfterRender(firstRender);
             if (!firstRender)
                 Context?.PagerStateHasChanged?.Invoke();
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+            if (firstRender)
+                await InvokeServerLoadFunc();
+            TableContext.UpdateRowCheckBoxes(updateGroups: false);
         }
 
         /// <summary>
@@ -589,8 +589,35 @@ namespace MudBlazor
                     Context.Selection.Remove(item);
             }
 
-            Context.UpdateRowCheckBoxes(notify: false);
-            SelectedItemsChanged.InvokeAsync(SelectedItems);
+            Context.UpdateRowCheckBoxes();
+
+            if (SelectedItemsChanged.HasDelegate)
+                SelectedItemsChanged.InvokeAsync(SelectedItems);
+        }
+
+        public void ExpandAllGroups()
+        {
+            ToggleExpandGroups(expand: true);
+        }
+
+        public void CollapseAllGroups()
+        {
+            ToggleExpandGroups(expand: false);
+        }
+
+        private void ToggleExpandGroups(bool expand)
+        {
+            if (_groupBy is not null)
+            {
+                _groupBy.IsInitiallyExpanded = expand;
+                Context?.GroupRows.Where(gr => gr.GroupDefinition == _groupBy).ToList().ForEach(gr => gr.IsExpanded = _groupBy.IsInitiallyExpanded);
+            }
+        }
+
+        private string ClearFilterCache()
+        {
+            _currentRenderFilteredItemsCached = false; 
+            return ""; 
         }
 
         #region lytico additions
