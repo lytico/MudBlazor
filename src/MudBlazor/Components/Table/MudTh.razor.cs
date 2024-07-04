@@ -15,7 +15,7 @@ public partial class MudTh : MudComponentBase
         .AddClass(Class)
         .Build();
 
-        [Parameter] public RenderFragment ChildContent { get; set; }
+        [Parameter] public RenderFragment? ChildContent { get; set; }
 
         /// <summary>
         /// If true, the left and right padding is removed from childcontent.
@@ -23,5 +23,5 @@ public partial class MudTh : MudComponentBase
         [Parameter]
         [Category(CategoryTypes.Table.Appearance)]
         public bool DisableGutters { get; set; }
-    }
+
 }

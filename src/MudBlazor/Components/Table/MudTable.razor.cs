@@ -654,8 +654,6 @@ namespace MudBlazor
 
             CurrentPage = state.Page;
 
-            if (CurrentPage * RowsPerPage > _server_data.TotalItems)
-
             if (CurrentPage * RowsPerPage > _serverData.TotalItems)
                 CurrentPage = 0;
 

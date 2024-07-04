@@ -33,10 +33,10 @@ namespace MudBlazor
 
         protected string PanelTitleClassname =>
             new CssBuilder("mud-expand-panel-header")
-                .AddClass("mud-expand-panel-gutters", DisableGutters || Parent?.DisableGutters == true)
+                .AddClass("mud-expand-panel-disable-gutters", !Gutters && Parent?.Gutters != true)
                 .AddClass("mud-expand-panel-dense", Dense || Parent?.Dense == true)
                 .Build();
-        
+
         protected string PanelContentClassname =>
             new CssBuilder("mud-expand-panel-content")
                 .AddClass("mud-expand-panel-disable-gutters", !Gutters && Parent?.Gutters != true)

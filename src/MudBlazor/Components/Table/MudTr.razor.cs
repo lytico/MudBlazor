@@ -192,7 +192,7 @@ namespace MudBlazor
                 return;
 
             if (!buttonClicked)
-                Context?.Table.SetSelectedItem(Item);
+                Context?.Table?.SetSelectedItem(Item);
 
             // Manage edition the first time the row is clicked and if the table is editable
             if (!_hasBeenClickedFirstTime && Editable)
@@ -277,7 +277,7 @@ namespace MudBlazor
             _hasBeenCommitted = true;
             _hasBeenCanceled = false;
 
-            // Set hasBeenClickedFirstTime to false 
+            // Set hasBeenClickedFirstTime to false
             _hasBeenClickedFirstTime = false;
         }
 
@@ -297,7 +297,7 @@ namespace MudBlazor
             _hasBeenCanceled = true;
             _hasBeenCommitted = false;
 
-            // Set hasBeenClickedFirstTime to false 
+            // Set hasBeenClickedFirstTime to false
             _hasBeenClickedFirstTime = false;
         }
 
