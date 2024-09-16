@@ -112,5 +112,14 @@ namespace MudBlazor
             _expanded = !Expanded;
             ExpandedChanged.InvokeAsync(_expanded);
         }
+        
+        #region lytico-additions
+
+        [Parameter]
+        [Category(CategoryTypes.NavMenu.Appearance)]
+        public Size IconSize { get; set; } = Size.Medium;
+
+        #endregion 
     }
+    
 }
