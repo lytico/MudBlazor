@@ -557,7 +557,8 @@ namespace MudBlazor
             return InvokeServerLoadFunc();
         }
 
-        internal override bool IsEditable { get => (RowEditingTemplate != null) || (Columns != null); }
+        // lytico: never edit if readonly
+        internal override bool IsEditable { get => (!ReadOnly && (RowEditingTemplate != null) || (Columns != null)); }
 
         //GROUPING:
         private IEnumerable<IGrouping<object, T>> GroupItemsPage
