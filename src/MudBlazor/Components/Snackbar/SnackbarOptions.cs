@@ -62,12 +62,12 @@ namespace MudBlazor
         {
             Severity = severity;
 
-            SnackbarTypeClass = $"mud-alert-{SnackbarVariant.ToDescriptionString()}-{severity.ToDescriptionString()}";
-
-            if (SnackbarVariant != Variant.Filled)
-            {
-                SnackbarTypeClass += BackgroundBlurred ? " mud-snackbar-blurred" : " mud-snackbar-surface";
-            }
+            // SnackbarTypeClass = $"mud-alert-{SnackbarVariant.ToDescriptionString()}-{severity.ToDescriptionString()}";
+            //
+            // if (SnackbarVariant != Variant.Filled)
+            // {
+            //     SnackbarTypeClass += BackgroundBlurred ? " mud-snackbar-blurred" : " mud-snackbar-surface";
+            // }
 
             if (string.IsNullOrEmpty(Icon))
             {
