@@ -153,7 +153,9 @@ namespace MudBlazor
         /// <summary>
         /// If true, Clearable is true and there is a non null value (non-string for string values)
         /// </summary>
-        private bool GetClearable() => Clearable && ((Value is string stringValue && !string.IsNullOrWhiteSpace(stringValue)) || (Value is not string && Value is not null));
+        private bool GetClearable() => Clearable
+                                       && !ReadOnly
+                                       && ((Value is string stringValue && !string.IsNullOrWhiteSpace(stringValue)) || (Value is not string && Value is not null));
 
         protected virtual async Task ClearButtonClickHandlerAsync(MouseEventArgs e)
         {

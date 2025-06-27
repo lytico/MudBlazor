@@ -762,7 +762,7 @@ namespace MudBlazor
                     },
                 });
                 _keyInterceptor.KeyDown += HandleKeyDown;
-                _keyInterceptor.KeyUp += HandleKeyUp;    
+                _keyInterceptor.KeyUp += HandleKeyUp;
             }
 
             await base.OnAfterRenderAsync(firstRender);
@@ -800,6 +800,8 @@ namespace MudBlazor
         /// </summary>
         protected async ValueTask SelectClearButtonClickHandlerAsync(MouseEventArgs e)
         {
+            if (ReadOnly) // fixed by Lytico
+                return;
             await SetValueAsync(default, false);
             await SetTextAsync(default, false);
             _selectedValues.Clear();
