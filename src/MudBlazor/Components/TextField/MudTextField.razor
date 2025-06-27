@@ -56,7 +56,7 @@
                               KeyPressPreventDefault="KeyPressPreventDefault"
                               KeyUpPreventDefault="KeyUpPreventDefault"
                               HideSpinButtons="true"
-                              Clearable="@Clearable"
+                              Clearable="@(Clearable &&!ReadOnly)"
                               OnClearButtonClick="@OnClearButtonClick"
                               Pattern="@Pattern"/>
                 }
@@ -86,7 +86,7 @@
                              Error="@Error"
                              Immediate="@Immediate"
                              Margin="@Margin" OnBlur="@OnBlurredAsync"
-                             Clearable="@Clearable"
+                             Clearable="@(Clearable && !ReadOnly)"
                              OnClearButtonClick="@OnClearButtonClick"/>
                 }
             </CascadingValue>

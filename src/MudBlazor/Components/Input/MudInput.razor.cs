@@ -17,12 +17,12 @@ namespace MudBlazor
         protected string AdornmentClassname => MudInputCssHelper.GetAdornmentClassname(this);
 
         protected string ClearButtonClassname =>
-                    new CssBuilder()
-                    .AddClass("me-n1", Adornment == Adornment.End && HideSpinButtons == false)
-                    .AddClass("mud-icon-button-edge-end", Adornment == Adornment.End && HideSpinButtons == true)
-                    .AddClass("me-6", Adornment != Adornment.End && HideSpinButtons == false)
-                    .AddClass("mud-icon-button-edge-margin-end", Adornment != Adornment.End && HideSpinButtons == true)
-                    .Build();
+            new CssBuilder()
+                .AddClass("me-n1", Adornment == Adornment.End && HideSpinButtons == false)
+                .AddClass("mud-icon-button-edge-end", Adornment == Adornment.End && HideSpinButtons == true)
+                .AddClass("me-6", Adornment != Adornment.End && HideSpinButtons == false)
+                .AddClass("mud-icon-button-edge-margin-end", Adornment != Adornment.End && HideSpinButtons == true)
+                .Build();
 
         /// <summary>
         /// Type of the input element. It should be a valid HTML5 input type.
@@ -153,9 +153,7 @@ namespace MudBlazor
         /// <summary>
         /// If true, Clearable is true and there is a non null value (non-string for string values)
         /// </summary>
-        private bool GetClearable() => Clearable
-                                       && !ReadOnly
-                                       && ((Value is string stringValue && !string.IsNullOrWhiteSpace(stringValue)) || (Value is not string && Value is not null));
+        private bool GetClearable() => Clearable && ((Value is string stringValue && !string.IsNullOrWhiteSpace(stringValue)) || (Value is not string && Value is not null));
 
         protected virtual async Task ClearButtonClickHandlerAsync(MouseEventArgs e)
         {
