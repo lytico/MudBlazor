@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
@@ -31,9 +31,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\LICENSE" Pack="true" Visible="false" PackagePath="" />
-    <None Include="..\..\content\Nuget.png" Pack="true" Visible="false" PackagePath="" />
-    <None Remove="global.json_" />
+    <None Include="..\..\LICENSE" Pack="true" Visible="false" PackagePath=""/>
+    <None Include="..\..\content\Nuget.png" Pack="true" Visible="false" PackagePath=""/>
+    <None Remove="global.json_"/>
   </ItemGroup>
 
   <!--Is this a rebuild - Dont clean generated files as this breaks rebuild behaviour-->
@@ -45,73 +45,77 @@
 
   <Target Name="CleanGeneratedFiles" BeforeTargets="Clean" Condition="'$(CleanGeneratedFiles)' != 'false'">
     <ItemGroup>
-      <FilesToClean Include="./TScripts/combined/MudBlazor.js" />
-      <FilesToClean Include="./wwwroot/MudBlazor.min.js" />
-      <FilesToClean Include="./wwwroot/MudBlazor.min.css" />
+      <FilesToClean Include="./TScripts/combined/MudBlazor.js"/>
+      <FilesToClean Include="./wwwroot/MudBlazor.min.js"/>
+      <FilesToClean Include="./wwwroot/MudBlazor.min.css"/>
     </ItemGroup>
-    <Delete Files="@(FilesToClean)" />
+    <Delete Files="@(FilesToClean)"/>
   </Target>
-
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net10.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.1"/>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.1"/>
+  </ItemGroup>
+  
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.12"/>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.12"/>
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="6.0.36" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.36" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="6.0.36"/>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.36"/>
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="7.0.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="7.0.5"/>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.5"/>
   </ItemGroup>
 
   <Target Name="ToolRestore">
-    <Exec Command="dotnet tool restore" StandardOutputImportance="high" />
+    <Exec Command="dotnet tool restore" StandardOutputImportance="high"/>
   </Target>
 
   <!--combine js files-->
   <Target Name="CombineJS">
     <CreateItem Include="./TScripts/*.js">
-      <Output TaskParameter="Include" ItemName="jsFilesToCombine" />
+      <Output TaskParameter="Include" ItemName="jsFilesToCombine"/>
     </CreateItem>
     <ReadLinesFromFile File="%(jsFilesToCombine.FullPath)">
-      <Output TaskParameter="Lines" ItemName="jsLines" />
+      <Output TaskParameter="Lines" ItemName="jsLines"/>
     </ReadLinesFromFile>
-    <WriteLinesToFile File="./TScripts/combined/MudBlazor.js" Lines="@(jsLines)" Overwrite="true" />
+    <WriteLinesToFile File="./TScripts/combined/MudBlazor.js" Lines="@(jsLines)" Overwrite="true"/>
   </Target>
 
   <Target Name="WebCompiler" DependsOnTargets="ToolRestore;CombineJS">
     <!--compile and minify scss-->
-    <Exec Command="dotnet webcompiler ./Styles/MudBlazor.scss -c excubowebcompiler.json" StandardOutputImportance="high" StandardErrorImportance="high" />
+    <Exec Command="dotnet webcompiler ./Styles/MudBlazor.scss -c excubowebcompiler.json" StandardOutputImportance="high" StandardErrorImportance="high"/>
     <!--minify js-->
-    <Exec Command="dotnet webcompiler ./TScripts/combined/MudBlazor.js -c excubowebcompiler.json" StandardOutputImportance="high" StandardErrorImportance="high" />
+    <Exec Command="dotnet webcompiler ./TScripts/combined/MudBlazor.js -c excubowebcompiler.json" StandardOutputImportance="high" StandardErrorImportance="high"/>
   </Target>
 
   <Target Name="IncludeGeneratedStaticFiles" DependsOnTargets="WebCompiler" BeforeTargets="BeforeBuild">
-    <Error Condition="!Exists('$(MSBuildProjectDirectory)/wwwroot/MudBlazor.min.css')" Text="Missing MudBlazor.min.css in wwwroot" />
-    <Error Condition="!Exists('$(MSBuildProjectDirectory)/wwwroot/MudBlazor.min.js')" Text="Missing MudBlazor.min.js in wwwroot" />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)/wwwroot/MudBlazor.min.css')" Text="Missing MudBlazor.min.css in wwwroot"/>
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)/wwwroot/MudBlazor.min.js')" Text="Missing MudBlazor.min.js in wwwroot"/>
     <ItemGroup>
       <!--Include without duplication-->
-      <_NewCompiledCssFiles Include="wwwroot\MudBlazor.min.css" Exclude="@(Content)" />
-      <_NewCompiledJsFiles Include="wwwroot\MudBlazor.min.js" Exclude="@(Content)" />
-      <Content Include="@(_NewCompiledCssFiles)" />
-      <Content Include="@(_NewCompiledJsFiles)" />
+      <_NewCompiledCssFiles Include="wwwroot\MudBlazor.min.css" Exclude="@(Content)"/>
+      <_NewCompiledJsFiles Include="wwwroot\MudBlazor.min.js" Exclude="@(Content)"/>
+      <Content Include="@(_NewCompiledCssFiles)"/>
+      <Content Include="@(_NewCompiledJsFiles)"/>
     </ItemGroup>
   </Target>
 
   <!--Dont Include in build output-->
   <ItemGroup>
-    <Content Remove="compilerconfig.json" />
-    <Content Remove="excubowebcompiler.json" />
-    <Content Remove="wwwroot/DoNotRemove.txt" />
+    <Content Remove="compilerconfig.json"/>
+    <Content Remove="excubowebcompiler.json"/>
+    <Content Remove="wwwroot/DoNotRemove.txt"/>
     <!--macOS hidden file (causes problems with dotnet pack)-->
-    <Content Remove="**/*/.DS_Store" />
+    <Content Remove="**/*/.DS_Store"/>
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="MudBlazor.UnitTests" />
+    <InternalsVisibleTo Include="MudBlazor.UnitTests"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -119,13 +123,12 @@
     cd ./src/MudBlazor
     dotnet watch webcompiler ./Styles/MudBlazor.scss -c excubowebcompiler.json
     -->
-    <Watch Include="**/*.scss" />
+    <Watch Include="**/*.scss"/>
   </ItemGroup>
 
   <ItemGroup>
-<!--    <ProjectReference Include="..\MudBlazor.SourceCodeGenerator\MudBlazor.SourceCodeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />-->
+    <!--    <ProjectReference Include="..\MudBlazor.SourceCodeGenerator\MudBlazor.SourceCodeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />-->
   </ItemGroup>
-
 
 
 </Project>
