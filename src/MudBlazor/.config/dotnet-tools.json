@@ -3,10 +3,11 @@
   "isRoot": true,
   "tools": {
     "excubo.webcompiler": {
-      "version": "4.0.3",
+      "version": "4.2.1",
       "commands": [
         "webcompiler"
-      ]
+      ],
+      "rollForward": false
     }
   }
 }
