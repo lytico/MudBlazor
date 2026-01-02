@@ -147,9 +147,14 @@ namespace MudBlazor
 #pragma warning restore CS0618
         }
 
+        bool firstRendered = false;
+
         //if not visible or CSS `position:absolute`, don't lock scroll
         protected override async Task OnAfterRenderAsync(bool firstTime)
         {
+            firstRendered = firstTime;
+            if (!firstTime)
+                return;
             if (!LockScroll || Absolute)
                 return;
 
@@ -159,22 +164,28 @@ namespace MudBlazor
                 await UnblockScrollAsync();
         }
 
+        int blockScrollCount = 0;
+
         //locks the scroll attaching a CSS class to the specified element, in this case the body
         private ValueTask BlockScrollAsync()
         {
+            blockScrollCount++;
             return ScrollManager.LockScrollAsync("body", LockScrollClass);
         }
 
         //removes the CSS class that prevented scrolling
         private ValueTask UnblockScrollAsync()
         {
+            blockScrollCount--;
             return ScrollManager.UnlockScrollAsync("body", LockScrollClass);
         }
 
         //When disposing the overlay, remove the class that prevented scrolling
         public ValueTask DisposeAsync()
         {
-            return UnblockScrollAsync();
+            if (firstRendered && blockScrollCount > 0)
+                return UnblockScrollAsync();
+            return ValueTask.CompletedTask;
         }
     }
 }
