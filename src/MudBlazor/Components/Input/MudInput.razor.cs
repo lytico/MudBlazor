@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -82,7 +83,7 @@ namespace MudBlazor
             }
             catch (Exception e)
             {
-                Console.WriteLine("MudInput.FocusAsync: " + e.Message);
+                Trace.WriteLine("MudInput.FocusAsync: " + e.Message);
             }
         }
 
