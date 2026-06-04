@@ -1,5 +1,5 @@
 <Project>
     <PropertyGroup>
-        <DotNetVersion>10.0.7</DotNetVersion>
+        <DotNetVersion>10.0.8</DotNetVersion>
     </PropertyGroup>
 </Project>
